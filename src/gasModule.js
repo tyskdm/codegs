@@ -13,3 +13,17 @@ function(exports, require, module, __filename, __dirname) {
 });
 
 
+
+/**
+ *      GASモジュールのテンプレート 案２
+ *
+ */
+
+require = require('nodeGS');
+
+
+//  ここにコードを書く
+
+
+
+
