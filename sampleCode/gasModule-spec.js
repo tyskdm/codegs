@@ -5,18 +5,18 @@
 
 var nodegs = require('nodeGS');
 
-var smod = nodegs.inject('someModule', {
+var mod1 = nodegs.inject('Module1', {
     SpreadsheetApp: fakeSpreadsheet_type01,
     Table: fakeTable_type02
 });
 
-var omod = nodegs.require('otherModule');
+var mod2 = nodegs.require('Module2');
 
 
 
-describe("Some module", function() {
+describe("Module1", function() {
     it ("should be...", function() {
-        expect(mySum.sum(7, 11)).toEqual(18);
+        expect(mod1.sum(7, 11)).toEqual(18);
     });
 });
 
