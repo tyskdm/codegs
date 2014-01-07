@@ -1,9 +1,9 @@
 
-var nodeGS = require('../src/nodeGS');
+var nodeGS = require('../lib/nodeGS');
 
-describe("nodeGS:", function () {
+describe("NodeGS:", function () {
     describe("'nodeGS module' itself:", function () {
-        it("should be object, not function.", function () {
+        it("should be Object not function.", function () {
             expect(typeof nodeGS).toEqual("object");
             expect(nodeGS instanceof Function).toBe(false);
         });
