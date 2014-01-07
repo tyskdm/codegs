@@ -3,14 +3,14 @@
  *
  */
 
-var ngs = require('nodeGS');
+var nodegs = require('nodeGS');
 
-var smod = ngs.inject('someModule', {
+var smod = nodegs.inject('someModule', {
     SpreadsheetApp: fakeSpreadsheet_type01,
     Table: fakeTable_type02
 });
 
-var omod = ngs.require('otherModule');
+var omod = nodegs.require('otherModule');
 
 
 

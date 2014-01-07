@@ -21,6 +21,11 @@ function(exports, require, module, __filename, __dirname) {
 
 require = require('nodeGS');
 
+// or
+
+require('nodeGS').setup(arguments);     // argumentsは、GAS空間では undefined.
+
+
 
 //  ここにコードを書く
 
