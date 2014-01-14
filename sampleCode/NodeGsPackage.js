@@ -23,6 +23,9 @@ function require(path) {
 
     require = (function () {
 
+        // node上でのデバッグ時に、code.jsがmoduleを汚染するのを避ける
+        var module = {};
+
         // start Code.gs package
 
         require('module').define('./assert.js', function () {
@@ -45,6 +48,8 @@ function require(path) {
                 return {};
             })();
 
+            module.exports = function () {};
+
         require('module').endMain();
 
         function require(path) {
@@ -58,10 +63,12 @@ function require(path) {
 
             return require(path);
         }
+        if (node.js) {
+            module.exports = require('module');
+        }
 
         // end of Code.gs package
 
-        return Module.prototype.require;    // BUGBUG: main module専用のrequireを返すこと。
     })();
 
     return require(path);
