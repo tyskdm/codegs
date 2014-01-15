@@ -1,4 +1,3 @@
-
 require('module').define('/any/user/module', function () {
     ;       // module code
 });
@@ -16,7 +15,6 @@ require('module').startMain('./nodegs.js');
     ;       // main code
 
 require('module').endMain();
-
 
 function require(path) {
 // この関数の中を、圧縮して難読化したい。
