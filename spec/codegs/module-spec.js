@@ -1,16 +1,19 @@
 
-// require('codegs') returns first core-module, 'module'.
-var Module = require('../../lib/codegs');
+var Module = require('../../lib/codegs/module.js');
 
 describe("Module:", function () {
 
-    describe("'module' itself:", function () {
-        it("should be function(Constractor).", function () {
-            expect(typeof Module).toEqual("function");
-            expect(Module instanceof Function).toBe(true);
+    describe("'Module' itself:", function () {
+
+        it("should be main module of codegs package.", function () {
+            expect(Module).toBe(require('../../lib/codegs'));
         });
 
-        describe("has methods and properties:", function () {
+        it("should be function(Constractor).", function () {
+            expect(typeof Module).toEqual("function");
+        });
+
+        describe("methods and properties:", function () {
             it("prototype.require", function () {
                 expect(typeof Module.prototype.require).toBe('function');
             });
@@ -23,10 +26,12 @@ describe("Module:", function () {
             it("startMain", function () {
                 expect(typeof Module.startMain).toBe('function');
             });
+            it("endMain", function () {
+                expect(typeof Module.startMain).toBe('function');
+            });
             it("wrap", function () {
                 expect(typeof Module.wrap).toBe('function');
             });
-
             it("load", function () {
                 expect(typeof Module.prototype.load).toBe('function');
             });
@@ -48,11 +53,10 @@ describe("Module:", function () {
 
     describe("module._mainModule:", function () {
         var target = Module._mainModule;
-        var name = '.';
 
-        describe("has methods and properties:", function () {
+        describe("methods and properties:", function () {
             it("id", function () {
-                expect(target.id).toBe(name);
+                expect(target.id).toBe('.');
             });
             it("parent", function () {
                 expect(target.parent).toBe(null);
@@ -69,9 +73,6 @@ describe("Module:", function () {
             });
             it("require", function () {
                 expect(typeof target.require).toBe('function');
-            });
-            it("load", function () {
-                expect(typeof target.load).toBe('function');
             });
         });
 
@@ -105,39 +106,6 @@ describe("Module:", function () {
         });
     });
 
-    describe("module._cache['module']:", function () {
-        var name = 'module';
-        var target = Module._cache[name];
-
-        describe("has methods and properties:", function () {
-            it("id", function () {
-                expect(target.id).toBe(name);
-            });
-            it("exports", function () {
-                expect(target.exports).toBe(Module);
-            });
-            it("parent", function () {
-                expect(target.parent).toBe(Module._mainModule);
-            });
-            it("filename", function () {
-                expect(target.filename).toBe(name);
-            });
-            it("loaded", function () {
-                expect(target.loaded).toBe(true);
-            });
-            it("children", function () {
-                expect(typeof target.children.length).toBe('number');
-                expect(target.children.length).toBe(0);
-            });
-            it("require", function () {
-                expect(typeof target.require).toBe('function');
-            });
-            it("load", function () {
-                expect(typeof target.load).toBe('function');
-            });
-        });
-    });
-
     describe("module.define method:", function () {
         it("should set module code to module._files[].", function () {
             expect(Module._files['DEFINE_TEST']).toBeUndefined;
@@ -150,23 +118,20 @@ describe("Module:", function () {
     });
 
     describe("require method called in mainModule(Outside module):", function () {
-        var require = Module._require;
-
-        it("should return codegs itself when called with argument = 'module'", function () {
-            expect(require('module')).toBe(Module);
-        });
-
-        it("should throw 'Cannot find module 'nomodule'' when module is not find.", function () {
-            function test() {
-                return require('nonExistentModuleName');
-            }
-            expect(test).toThrow("Cannot find module 'nonExistentModuleName'");
-        });
+        // Currentry, no test item.
     });
 
     describe("require method called inside module:", function () {
 
-        Module.define("./REQUIRE_TEST.js",
+        var PARENT_FILENAME = './REQUIRE_FUNCTION.js';
+        Module.define(PARENT_FILENAME,
+        function (exports, require, module, __filename, __dirname) {
+            exports.require = require;
+            exports.module = module;
+        });
+
+        var TARGET_FILENAME = './REQUIRED_MODULE.js';
+        Module.define(TARGET_FILENAME,
         function (exports, require, module, __filename, __dirname) {
             exports.require = require;
             exports.module = module;
@@ -175,24 +140,21 @@ describe("Module:", function () {
             exports.This = this;
         });
 
-        var target = Module._require("./REQUIRE_TEST.js");
-        var require = target.require;
-        var name = "./REQUIRE_TEST.js";
-
-        target = require(name).module;
+        var parent = Module._require(PARENT_FILENAME);
+        var target = parent.require(TARGET_FILENAME).module;
 
         describe("has methods and properties:", function () {
             it("id", function () {
-                expect(target.id).toBe(name);
+                expect(target.id).toBe(TARGET_FILENAME);
             });
             it("exports === this", function () {
                 expect(target.exports).toBe(target.exports.This);
             });
             it("parent", function () {
-                expect(target.parent).toBe(Module._mainModule);
+                expect(target.parent).toBe(parent.module);
             });
             it("filename", function () {
-                expect(target.filename).toBe(name);
+                expect(target.filename).toBe(TARGET_FILENAME);
             });
             it("loaded", function () {
                 expect(target.loaded).toBe(true);
@@ -207,22 +169,33 @@ describe("Module:", function () {
                 });
 
                 it("should return codegs itself when called with argument = 'module'", function () {
-                    expect(require('module')).toBe(Module);
+                    expect(target.require('module')).toBe(Module);
                 });
 
                 it("should throw 'Cannot find module 'nomodule'' when module is not find.", function () {
+                    var NAME = 'nonExistentModuleName';
                     function test() {
-                        return require('nonExistentModuleName');
+                        return require(NAME);
                     }
-                    expect(test).toThrow("Cannot find module 'nonExistentModuleName'");
+                    expect(test).toThrow("Cannot find module '" + NAME + "'");
                 });
             });
-
-            it("load", function () {
-                expect(typeof target.load).toBe('function');
-            });
-
         });
-
     });
+
+    describe("module.exists method", function () {
+        it("should return false when not exist.", function () {
+            var NAME = 'nonExistentFileName';
+            expect(Module.exists(NAME)).toBe(false);
+        });
+        it("should return true when exist.", function () {
+            var NAME1 = 'module',
+                NAME2 = './EXISTS_TEST.js';
+            expect(Module.exists(NAME1)).toBe(true);
+
+            var func = function() { ; };
+            Module.define(NAME2, func);
+            expect(Module.exists(NAME2)).toBe(true);
+        });
+    })
 });
