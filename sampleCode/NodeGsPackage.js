@@ -31,19 +31,27 @@ function require(path) {
             ;       // module code
         });
 
-        require('module').define('./module.js', function () {
+        require('module').define('./process.js', function () {
             ;       // module code
         });
 
         require('module').startMain('./nodegs.js');
 
-            ;       // main code
-
-            global.process = (function () {
-                return {};
+            // Node.js Global Objects
+            if (typeof global === undefined) {
+                this.global = this;
+            }
+            global.process = require('./process.js');
+            global.console = require('./console.js');
+            (function () {
+                var timer = require('./timers.js');
+                global.setTimeout = timer.setTimeout;
+                global.clearTimeout = timer.clearTimeout;
+                global.setInterval = timer.setInterval;
+                global.clearInterval = timer.clearInterval;
             })();
 
-            module.exports = function () {};
+            require('module')._resolveFilename = require('./resolve.js');
 
         require('module').endMain();
 
