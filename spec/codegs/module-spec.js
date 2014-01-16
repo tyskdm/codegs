@@ -179,6 +179,11 @@ describe("Module:", function () {
                     }
                     expect(test).toThrow("Cannot find module '" + NAME + "'");
                 });
+
+                it("should return null when called with argument = undefined", function () {
+                    expect(target.require(undefined)).toBeNull();
+                    expect(target.require()).toBeNull();
+                });
             });
         });
     });
