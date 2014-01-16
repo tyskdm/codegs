@@ -1,5 +1,5 @@
 
-// var nodegs = require('../lib/nodegs/nodegs.js');
+// var nodegs = require('../../lib/nodegs/nodegs.js');
 
 xdescribe("NodeGS:", function () {
     describe("'nodeGS module' itself:", function () {
