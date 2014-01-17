@@ -60,7 +60,7 @@ function require(path) {
             require = (function () {
                 function Module(id, parent) {};
                 Module.prototype.require = function (path) {};
-                return Module.prototype.require;
+                return Module._require;
             })();
 
             return require(path);
