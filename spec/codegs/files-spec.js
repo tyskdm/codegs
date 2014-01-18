@@ -5,6 +5,16 @@ describe("files:", function () {
 
     describe("files itself:", function () {
         describe("methods and properties:", function () {
+            it("save", function () {
+                expect(typeof Module.prototype.require).toBe('function');
+            });
+            it("load", function () {
+                expect(typeof Module.prototype.require).toBe('function');
+            });
+            it("exists", function () {
+                expect(typeof Module.prototype.require).toBe('function');
+            });
+
             it("resolveFilename", function () {
                 expect(typeof Module.prototype.require).toBe('function');
             });
@@ -17,24 +27,16 @@ describe("files:", function () {
             it("findFile", function () {
                 expect(typeof Module.prototype.require).toBe('function');
             });
-            it("store", function () {
-                expect(typeof Module.prototype.require).toBe('function');
-            });
-            it("exists", function () {
-                expect(typeof Module.prototype.require).toBe('function');
-            });
-            it("getContent", function () {
-                expect(typeof Module.prototype.require).toBe('function');
-            });
         });
     });
 
-    describe("files.resolveFilename method:", function () {
-        it("should set module code to module._files[].", function () {
-            expect(Module._files['DEFINE_TEST']).toBeUndefined;
+    describe("files.findFile method:", function () {
+        it("should get 2 options.", function () {
+            var filename = '/path/to/file';
+            var option = [ '', '.js', '/package.json', '/index.js' ];
 
-            var func = function() { ; };
-            Module.define('DEFINE_TEST', func);
+            files.findFile('/path/to/file', option);
+
 
             expect(Module._files['DEFINE_TEST']).toBe(func);
         });
