@@ -27,6 +27,9 @@ xdescribe("files:", function () {
             it("findFile", function () {
                 expect(typeof files.prototype.require).toBe('function');
             });
+            it("findModule", function () {
+                expect(typeof files.prototype.require).toBe('function');
+            });
         });
     });
 
@@ -63,8 +66,7 @@ xdescribe("files:", function () {
             var filename = '/path/to/file';
             var option = [ '', '.js', '/package.json', '/index.js' ];
 
-            files.findFile('/path/to/file', option);
-
+            // files.findFile('/path/to/file', option);
 
             expect(files._files['DEFINE_TEST']).toBe(func);
         });
