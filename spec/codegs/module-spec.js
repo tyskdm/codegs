@@ -66,7 +66,7 @@ describe("Module:", function () {
         });
     });
 
-    describe("module._mainModule:", function () {
+    describe("property _mainModule:", function () {
         var target = Module._mainModule;
 
         describe("methods and properties:", function () {
@@ -121,7 +121,7 @@ describe("Module:", function () {
         });
     });
 
-    describe("module.define method:", function () {
+    describe("method define:", function () {
         it("should set module code to module._files[].", function () {
             expect(Module._files['DEFINE_TEST']).toBeUndefined;
 
@@ -231,7 +231,7 @@ describe("Module:", function () {
         });
     });
 
-    describe("module.exists method", function () {
+    describe("method exists:", function () {
         it("should return false when not exist.", function () {
             var NAME = 'nonExistentFileName';
             expect(Module.exists(NAME)).toBe(false);
@@ -247,13 +247,14 @@ describe("Module:", function () {
         });
     })
 
-    describe("require method called in mainModule(Outside module):", function () {
+    describe("method require - called in mainModule(Outside module):", function () {
         // Currentry, no test item.
     });
 
-    describe("require method called inside module:", function () {
+    describe("method require - called inside module:", function () {
 
         var PARENT_FILENAME = './REQUIRE_FUNCTION.js';
+        //var PARENT_FILENAME = '/REQUIRE_FUNCTION.js';
         Module.define(PARENT_FILENAME,
         function (exports, require, module, __filename, __dirname) {
             exports.require = require;
@@ -261,6 +262,7 @@ describe("Module:", function () {
         });
 
         var TARGET_FILENAME = './REQUIRED_MODULE.js';
+        //var TARGET_FILENAME = '/REQUIRED_MODULE.js';
         Module.define(TARGET_FILENAME,
         function (exports, require, module, __filename, __dirname) {
             exports.require = require;
