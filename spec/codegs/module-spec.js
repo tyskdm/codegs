@@ -5,7 +5,7 @@ describe("Module:", function () {
 
     describe("'Module' itself:", function () {
 
-        xit("should be main module of codegs package.", function () {
+        it("should be main module of codegs package.", function () {
             expect(Module).toBe(require('../../lib/codegs'));
         });
 
@@ -231,6 +231,48 @@ describe("Module:", function () {
         });
     });
 
+    describe("method _findModule:", function () {
+        var pathA = "/path/to/file", fileA = "file-A";
+        Module.define( "/path/to/file/node_modules/file-A", function () {});
+        Module.define( "/path/to/node_modules/file-A", function () {});
+        Module.define( "/path/node_modules/file-A", function () {});
+        Module.define( "/node_modules/file-A", function () {});
+
+        var pathB = "/path/to/file", fileB = "file-B";
+        Module.define( "/path/to/node_modules/file-B", function () {});
+        Module.define( "/path/node_modules/file-B", function () {});
+        Module.define( "/node_modules/file-B", function () {});
+
+        var pathC = "/path/to/file", fileC = "file-C";
+        Module.define( "/path/node_modules/file-C", function () {});
+        Module.define( "/node_modules/file-C", function () {});
+
+        var pathD = "/path/to/file", fileD = "file-D";
+        Module.define( "/node_modules/file-D", function () {});
+
+        var pathE = "/path/to/file", fileE = "file-E";
+
+        it("should return '/path/to/file/node_modules/file-A'", function () {
+            expect(Module._findModule(pathA, fileA)).toBe('/path/to/file/node_modules/file-A');
+        });
+
+        it("should return '/path/to/node_modules/file-B'", function () {
+            expect(Module._findModule(pathB, fileB)).toBe('/path/to/node_modules/file-B');
+        });
+
+        it("should return '/path/node_modules/file-C'", function () {
+            expect(Module._findModule(pathC, fileC)).toBe('/path/node_modules/file-C');
+        });
+
+        it("should return '/node_modules/file-D'", function () {
+            expect(Module._findModule(pathD, fileD)).toBe('/node_modules/file-D');
+        });
+
+        it("should return null when file not found.", function () {
+            expect(Module._findModule(pathE, fileE)).toBe(null);
+        });
+    });
+
     describe("method exists:", function () {
         it("should return false when not exist.", function () {
             var NAME = 'nonExistentFileName';
@@ -246,6 +288,47 @@ describe("Module:", function () {
             expect(Module.exists(NAME2)).toBe(true);
         });
     })
+
+    xdescribe("method _resolveFilename:", function () {
+        var PATH_DATA = [
+            // test-pattern list. Item = [ parent, request, toBe ]
+            // parent.filename is one of 3 types. '/path/to/file', 'node_core/file', 'module'
+            // but 'module' never call others.
+            // require is one of 5 types. 'module', './path', '../path', '/path', 'node_module'
+            // So, total matrix to be 2 x 5 = 10 patterns.
+            [ { filename: '/path/to/file.js'}, 'module',        'module'],
+            [ { filename: '/path/to/file.js'}, './subufile.js', '/path/to/subfile.js'],
+            [ { filename: '/path/to/file.js'}, '../lib/mylib',  '/path/lib/mylib'],
+            [ { filename: '/path/to/file.js'}, '/common/lib',   '/common/lib'],
+            [ { filename: '/path/to/file.js'}, 'assert',        'node_modules/assert'],
+
+            [ { filename: 'node_modules/assert.js'},   'module',        ''],
+            [ { filename: 'node_modules/assert.js'},   './sub/file',    ''],
+            [ { filename: 'node_modules/sub/file.js'}, '../util',       ''],
+            [ { filename: 'node_modules/assert.js'},   '/package.json', ''],
+            [ { filename: 'node_modules/assert.js'},   'util',          '']
+        ];
+
+        it("should return '/path/to/file/node_modules/file-A'", function () {
+            expect(Module._findModule(pathA, fileA)).toBe('/path/to/file/node_modules/file-A');
+        });
+
+        it("should return '/path/to/node_modules/file-B'", function () {
+            expect(Module._findModule(pathB, fileB)).toBe('/path/to/node_modules/file-B');
+        });
+
+        it("should return '/path/node_modules/file-C'", function () {
+            expect(Module._findModule(pathC, fileC)).toBe('/path/node_modules/file-C');
+        });
+
+        it("should return '/node_modules/file-D'", function () {
+            expect(Module._findModule(pathD, fileD)).toBe('/node_modules/file-D');
+        });
+
+        it("should return null when file not found.", function () {
+            expect(Module._findModule(pathE, fileE)).toBe(null);
+        });
+    });
 
     describe("method require - called in mainModule(Outside module):", function () {
         // Currentry, no test item.
