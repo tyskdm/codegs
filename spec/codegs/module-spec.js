@@ -10,63 +10,83 @@ describe("Module:", function () {
         });
 
         it("should be function(Constractor).", function () {
-            expect(typeof Module).toEqual("function");
+            expect(typeof Module).toBe("function");
         });
 
-        describe("methods and properties:", function () {
-            it("prototype.require", function () {
+        it("should create new object.", function () {
+            var id = "id",
+                parent = { children: [] };
+
+            var module = new Module(id, parent);
+
+            expect(module).toEqual({
+                id:         id,
+                exports:    {},
+                parent:     parent,
+                filename:   null,
+                loaded:     false,
+                children:   [],
+                require:    Module.prototype.require,
+                load:       Module.prototype.load
+            });
+            expect(parent.children[0]).toBe(module);
+        });
+
+        describe("has Methods and Properties:", function () {
+
+            it("Method prototype.require", function () {
                 expect(typeof Module.prototype.require).toBe('function');
             });
-            it("define", function () {
+            it("Method define", function () {
                 expect(typeof Module.define).toBe('function');
             });
-            it("exists", function () {
-                expect(typeof Module.exists).toBe('function');
+            it("Method runMain", function () {
+                expect(typeof Module.runMain).toBe('function');
             });
-            it("startMain", function () {
-                expect(typeof Module.startMain).toBe('function');
+            it("Method endMain", function () {
+                expect(typeof Module.endMain).toBe('function');
             });
-            it("endMain", function () {
-                expect(typeof Module.startMain).toBe('function');
-            });
-            it("wrap", function () {
+            it("Method wrap", function () {
                 expect(typeof Module.wrap).toBe('function');
             });
-            it("load", function () {
+            it("Method load", function () {
                 expect(typeof Module.prototype.load).toBe('function');
             });
-            it("_load", function () {
+            it("Method _load", function () {
                 expect(typeof Module._load).toBe('function');
             });
-            it("_resolveFilename", function () {
+            it("Method _resolveFilename", function () {
                 expect(typeof Module._resolveFilename).toBe('function');
             });
-            it("_getDirname", function () {
+            it("Method _getDirname", function () {
                 expect(typeof Module._getDirname).toBe('function');
             });
-            it("_joinPath", function () {
+            it("Method _joinPath", function () {
                 expect(typeof Module._joinPath).toBe('function');
             });
-            it("_findFile", function () {
+            it("Method _findFile", function () {
                 expect(typeof Module._findFile).toBe('function');
             });
-            it("_findModule", function () {
+            it("Method _findModule", function () {
                 expect(typeof Module._findModule).toBe('function');
             });
 
-            it("_files", function () {
+            it("Property _files", function () {
                 expect(typeof Module._files).toBe('object');
             });
-            it("_cache", function () {
+            it("Property _cache", function () {
                 expect(typeof Module._cache).toBe('object');
             });
-            it("_mainModule", function () {
+            it("Property _mainModule", function () {
                 expect(typeof Module._mainModule).toBe('object');
+            });
+            it("Property _NativeModule", function () {
+                expect(typeof Module._NativeModule).toBe('object');
             });
         });
     });
 
-    describe("property _mainModule:", function () {
+    describe("Property _mainModule:", function () {
         var target = Module._mainModule;
 
         describe("methods and properties:", function () {
@@ -84,16 +104,31 @@ describe("Module:", function () {
             });
             it("children", function () {
                 expect(typeof target.children.length).toBe('number');
-                expect(target.children[0].id).toBe('module');
+                expect(target.children[0].id).toBe('core/module');
             });
             it("require", function () {
                 expect(typeof target.require).toBe('function');
             });
         });
+        xdescribe("has Methods and Properties:", function () {
 
-        describe("should be changed after Module.startMain():", function () {
+            it("", function () {
+                expect(target).toEqual({
+                    id:         '.',
+                    exports:    {},
+                    parent:     null,
+                    filename:   null,
+                    loaded:     false,
+                    children:   [ Module._cache['core/module'] ],
+                    require:    Module.prototype.require,
+                    load:       Module.prototype.load
+                });
+            });
+        });
+
+        describe("should be changed after Module.runMain():", function () {
             beforeEach(function () {
-                Module.startMain('TEST_FILENAME');
+                Module.runMain('TEST_FILENAME');
             });
 
             describe("properties:", function () {
@@ -137,6 +172,8 @@ describe("Module:", function () {
             expect(Module._getDirname('/path/to/file.js')).toBe('/path/to');
             expect(Module._getDirname('/path/to/file/package.json')).toBe('/path/to/file');
             expect(Module._getDirname('/package.json')).toBe('/');
+            expect(Module._getDirname('core/module')).toBe('core');
+            expect(Module._getDirname('core/sub/module')).toBe('core/sub');
         });
         it("should return null when '/' is not included.", function () {
             expect(Module._getDirname('module')).toBe(null);
@@ -164,9 +201,10 @@ describe("Module:", function () {
             expect(Module._joinPath('/a/b', '../lib/module/')).toBe('/a/lib/module/');
             expect(Module._joinPath('/a/b/', '../lib/module/')).toBe('/a/lib/module/');
         });
-        it("also take slash as root folder.", function () {
+        it("take root folder as base directory.", function () {
             expect(Module._joinPath('/', 'lib/module')).toBe('/lib/module');
             expect(Module._joinPath('/', './lib/module')).toBe('/lib/module');
+            expect(Module._joinPath('/', './')).toBe('/');
 
             function test () {
                 Module._joinPath('/', '../file.js');
@@ -190,6 +228,10 @@ describe("Module:", function () {
     });
 
     describe("method _findFile:", function () {
+        /**
+         *  TODO: folder/ のように明示的にフォルダを指定された場合の処理が抜けている。node.jsの仕様は？
+         *
+         */
         var pattarnA = "/pattarn-a/filename";
         Module.define( "/pattarn-a/filename", function () {});
         Module.define( "/pattarn-a/filename.js", function () {});
@@ -224,6 +266,7 @@ describe("Module:", function () {
 
         it("should return /pattarn-d/filename", function () {
             expect(Module._findFile(pattarnD)).toBe(pattarnD + '/index.js');
+            // expect(Module._findFile('/pattarn-d/filename/')).toBe(pattarnD + '/index.js');
         });
 
         it("should return null when file not found.", function () {
@@ -252,6 +295,13 @@ describe("Module:", function () {
 
         var pathE = "/path/to/file", fileE = "file-E";
 
+        var pathF = "file", fileF = "file-F";
+
+        var pathG = "path/to/file", fileG = "file-G";
+        Module.define( "path/node_modules/file-G", function () {});
+        Module.define( "node_modules/file-G", function () {});
+
+
         it("should return '/path/to/file/node_modules/file-A'", function () {
             expect(Module._findModule(pathA, fileA)).toBe('/path/to/file/node_modules/file-A');
         });
@@ -270,63 +320,86 @@ describe("Module:", function () {
 
         it("should return null when file not found.", function () {
             expect(Module._findModule(pathE, fileE)).toBe(null);
+        });
+
+        it("should return null when called from outside filepath.", function () {
+            expect(Module._findModule(pathF, fileF)).toBe(null);
+        });
+
+        it("should return 'path/node_modules/file-G'", function () {
+            expect(Module._findModule(pathG, fileG)).toBe('path/node_modules/file-G');
         });
     });
 
-    describe("method exists:", function () {
-        it("should return false when not exist.", function () {
-            var NAME = 'nonExistentFileName';
-            expect(Module.exists(NAME)).toBe(false);
-        });
-        it("should return true when exist.", function () {
-            var NAME1 = 'module',
-                NAME2 = './EXISTS_TEST.js';
-            expect(Module.exists(NAME1)).toBe(true);
+    describe("Property _NativeModule:", function () {
 
-            var func = function() { ; };
-            Module.define(NAME2, func);
-            expect(Module.exists(NAME2)).toBe(true);
+        describe("'_NativeModule' itself:", function () {
+            describe("has methods and properties.", function () {
+                it("Property filePaths", function () {
+                    expect(typeof Module._NativeModule.filePaths).toBe('object');
+                });
+                it("method exists", function () {
+                    expect(typeof Module._NativeModule.exists).toBe('function');
+                });
+                it("method getFilename", function () {
+                    expect(typeof Module._NativeModule.getFilename).toBe('function');
+                });
+                it("method getObject", function () {
+                    expect(typeof Module._NativeModule.getObject).toBe('function');
+                });
+            });
         });
-    })
 
-    xdescribe("method _resolveFilename:", function () {
+        describe("method exists:", function () {
+            it("", function () {
+                ;
+            });
+        });
+
+        describe("method getFilename:", function () {
+            it("", function () {
+                ;
+            });
+        });
+
+        describe("method getObject:", function () {
+            it("", function () {
+                ;
+            });
+        });
+    });
+
+    describe("method _resolveFilename:", function () {
         var PATH_DATA = [
+            // 明示的にフォルダを指定してみる？
+            //
             // test-pattern list. Item = [ parent, request, toBe ]
-            // parent.filename is one of 3 types. '/path/to/file', 'node_core/file', 'module'
-            // but 'module' never call others.
-            // require is one of 5 types. 'module', './path', '../path', '/path', 'node_module'
+            // parent.filename is one of 2 types. '/path/to/file', 'node_core/file'.
+            // require is one of 6 types. 'module', './path', '../path', '/path', 'node_core', 'node_package'
             // So, total matrix to be 2 x 5 = 10 patterns.
-            [ { filename: '/path/to/file.js'}, 'module',        'module'],
-            [ { filename: '/path/to/file.js'}, './subufile.js', '/path/to/subfile.js'],
-            [ { filename: '/path/to/file.js'}, '../lib/mylib',  '/path/lib/mylib'],
-            [ { filename: '/path/to/file.js'}, '/common/lib',   '/common/lib'],
-            [ { filename: '/path/to/file.js'}, 'assert',        'node_modules/assert'],
+            [ { filename: '/path/to/file.js'},          'module(1)',           'core/module(1)'],
+            [ { filename: '/path/to/file.js'},          './subfile.js(2)',     '/path/to/subfile.js(2)'],
+            [ { filename: '/path/to/file.js'},          '../lib/mylib(3)',     '/path/lib/mylib(3)'],
+            [ { filename: '/path/to/file.js'},          '/common/lib(4)',      '/common/lib(4)'],
+            [ { filename: '/path/to/file.js'},          'assert(5)',           'node_core/assert(5)'],
+            [ { filename: '/path/to/file.js'},          'package(6)',          '/path/node_modules/package(6)'],
 
-            [ { filename: 'node_modules/assert.js'},   'module',        ''],
-            [ { filename: 'node_modules/assert.js'},   './sub/file',    ''],
-            [ { filename: 'node_modules/sub/file.js'}, '../util',       ''],
-            [ { filename: 'node_modules/assert.js'},   '/package.json', ''],
-            [ { filename: 'node_modules/assert.js'},   'util',          '']
+            [ { filename: 'node_core/assert.js'},       'module(7)',           'core/module(7)'],
+            [ { filename: 'node_core/assert.js'},       './sub/file(8)',       'node_core/sub/file(8)'],
+            [ { filename: 'node_core/sub/file.js'},     '../util(9)',          'node_core/util(9)'],
+            [ { filename: 'node_core/assert.js'},       '/package.json(10)',   '/package.json(10)'],
+            [ { filename: 'node_core/assert.js'},       'util(11)',            'node_core/util(11)'],
+            [ { filename: 'node_core/assert.js'},       'package(12)',         'node_core/node_modules/package(12)']
         ];
 
-        it("should return '/path/to/file/node_modules/file-A'", function () {
-            expect(Module._findModule(pathA, fileA)).toBe('/path/to/file/node_modules/file-A');
-        });
+        for (var i = 0; i < PATH_DATA.length; i++) {
+            Module.define(PATH_DATA[i][2], function () {});
+        }
 
-        it("should return '/path/to/node_modules/file-B'", function () {
-            expect(Module._findModule(pathB, fileB)).toBe('/path/to/node_modules/file-B');
-        });
-
-        it("should return '/path/node_modules/file-C'", function () {
-            expect(Module._findModule(pathC, fileC)).toBe('/path/node_modules/file-C');
-        });
-
-        it("should return '/node_modules/file-D'", function () {
-            expect(Module._findModule(pathD, fileD)).toBe('/node_modules/file-D');
-        });
-
-        it("should return null when file not found.", function () {
-            expect(Module._findModule(pathE, fileE)).toBe(null);
+        it("should return PATH_DATA[i]", function () {
+            for (var i = 0; i < PATH_DATA.length; i++) {
+                expect(Module._resolveFilename(PATH_DATA[i][1], PATH_DATA[i][0])).toBe(PATH_DATA[i][2]);
+            }
         });
     });
 
@@ -358,7 +431,7 @@ describe("Module:", function () {
         var parent = Module._require(PARENT_FILENAME);
         var target = parent.require(TARGET_FILENAME).module;
 
-        describe("has methods and properties:", function () {
+        describe("has has Methods and Properties:", function () {
             it("id", function () {
                 expect(target.id).toBe(TARGET_FILENAME);
             });
