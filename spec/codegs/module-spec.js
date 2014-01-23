@@ -1,35 +1,36 @@
 
 describe("Module:", function () {
 
-    var Module = require('../../lib/codegs/module.js');
+    var Module;
+
+    beforeEach(function () {
+        Module = require('../../lib/codegs/module.js');
+        Module.__reset__();
+    });
 
     describe("'Module' itself:", function () {
-
-        it("should be main module of codegs package.", function () {
-            expect(Module).toBe(require('../../lib/codegs'));
-        });
 
         it("should be function(Constractor).", function () {
             expect(typeof Module).toBe("function");
         });
 
         it("should create new object.", function () {
-            var id = "id",
-                parent = { children: [] };
+            var ID = "id",
+                PARENT = { children: [] };
 
-            var module = new Module(id, parent);
+            var module = new Module(ID, PARENT);
 
             expect(module).toEqual({
-                id:         id,
+                id:         ID,
                 exports:    {},
-                parent:     parent,
+                parent:     PARENT,
                 filename:   null,
                 loaded:     false,
                 children:   [],
                 require:    Module.prototype.require,
                 load:       Module.prototype.load
             });
-            expect(parent.children[0]).toBe(module);
+            expect(PARENT.children[0]).toBe(module);
         });
 
         describe("has Methods and Properties:", function () {
@@ -86,77 +87,92 @@ describe("Module:", function () {
         });
     });
 
-    describe("Property _mainModule:", function () {
-        var target = Module._mainModule;
+    describe("Property _mainModule / Method runMain, endMain:", function () {
 
-        describe("methods and properties:", function () {
-            it("id", function () {
-                expect(target.id).toBe('.');
-            });
-            it("parent", function () {
-                expect(target.parent).toBe(null);
-            });
-            it("filename", function () {
-                expect(target.filename).toBe(null);
-            });
-            it("loaded", function () {
-                expect(target.loaded).toBe(false);
-            });
-            it("children", function () {
-                expect(typeof target.children.length).toBe('number');
-                expect(target.children[0].id).toBe('core/module');
-            });
-            it("require", function () {
-                expect(typeof target.require).toBe('function');
-            });
+        var target;
+
+        beforeEach(function () {
+            target = Module._mainModule;
         });
-        xdescribe("has Methods and Properties:", function () {
 
-            it("", function () {
+        describe("Property _mainModule:", function () {
+
+            it("has Methods and Properties.", function () {
                 expect(target).toEqual({
                     id:         '.',
                     exports:    {},
                     parent:     null,
                     filename:   null,
                     loaded:     false,
-                    children:   [ Module._cache['core/module'] ],
+                    children:   [],
                     require:    Module.prototype.require,
                     load:       Module.prototype.load
                 });
             });
         });
 
-        describe("should be changed after Module.runMain():", function () {
+        describe("Method runMain:", function () {
             beforeEach(function () {
                 Module.runMain('TEST_FILENAME');
             });
 
-            describe("properties:", function () {
-                it("filename", function () {
-                    expect(target.filename).toBe('TEST_FILENAME');
+            it("should updated _mainModule.", function () {
+                expect(target).toEqual({
+                    id:         '.',
+                    exports:    {},
+                    parent:     null,
+                    filename:   'TEST_FILENAME',
+                    loaded:     false,
+                    children:   [],
+                    require:    Module.prototype.require,
+                    load:       Module.prototype.load
                 });
-                it("loaded", function () {
-                    expect(target.loaded).toBe(false);
-                });
-                it("main module cached as 'TEST_FILENAME'", function () {
-                    expect(Module._cache['TEST_FILENAME']).toBe(target);
-                });
+            });
+
+            it("let _mainModule cached into Module._cache.", function () {
+                expect(Module._cache['TEST_FILENAME']).toBe(target);
             });
         });
 
-        describe("should be changed after Module.endMain():", function () {
-            it("endMain called with invalid filename.", function () {
-                Module.endMain('INVALID_FILENAME');
-                expect(target.loaded).toBe(false);
+        describe("Method endMain:", function () {
+            beforeEach(function () {
+                Module.runMain('TEST_FILENAME');
             });
-            it("endMain called with valid filename.", function () {
-                Module.endMain('TEST_FILENAME');
-                expect(target.loaded).toBe(true);
+
+            describe("should update _mainModule.", function () {
+                it("NOP - called with invalid filename.", function () {
+                    Module.endMain('INVALID_FILENAME');
+
+                    expect(target).toEqual({
+                        id:         '.',
+                        exports:    {},
+                        parent:     null,
+                        filename:   'TEST_FILENAME',
+                        loaded:     false,
+                        children:   [],
+                        require:    Module.prototype.require,
+                        load:       Module.prototype.load
+                    });
+                });
+                it("UPDATE - called with valid filename.", function () {
+                    Module.endMain('TEST_FILENAME');
+
+                    expect(target).toEqual({
+                        id:         '.',
+                        exports:    {},
+                        parent:     null,
+                        filename:   'TEST_FILENAME',
+                        loaded:     true,
+                        children:   [],
+                        require:    Module.prototype.require,
+                        load:       Module.prototype.load
+                    });
+                });
             });
         });
     });
 
-    describe("method define:", function () {
+    describe("Method define:", function () {
         it("should set module code to module._files[].", function () {
             expect(Module._files['DEFINE_TEST']).toBeUndefined;
 
@@ -167,8 +183,8 @@ describe("Module:", function () {
         });
     });
 
-    describe("method _getDirname:", function () {
-        it("should return dirname in full-filename.", function () {
+    describe("Method _getDirname:", function () {
+        it("should return dirname from full-filename.", function () {
             expect(Module._getDirname('/path/to/file.js')).toBe('/path/to');
             expect(Module._getDirname('/path/to/file/package.json')).toBe('/path/to/file');
             expect(Module._getDirname('/package.json')).toBe('/');
@@ -180,7 +196,7 @@ describe("Module:", function () {
         });
     });
 
-    describe("method _joinPath:", function () {
+    describe("Method _joinPath:", function () {
         it("should return full-filename.", function () {
             expect(Module._joinPath('project/src', '../lib/assert.js')).toBe('project/lib/assert.js');
             expect(Module._joinPath('/project/src', '../lib/assert.js')).toBe('/project/lib/assert.js');
@@ -227,209 +243,319 @@ describe("Module:", function () {
         });
     });
 
-    describe("method _findFile:", function () {
-        /**
-         *  TODO: folder/ のように明示的にフォルダを指定された場合の処理が抜けている。node.jsの仕様は？
-         *
-         */
-        var pattarnA = "/pattarn-a/filename";
-        Module.define( "/pattarn-a/filename", function () {});
-        Module.define( "/pattarn-a/filename.js", function () {});
-        Module.define( "/pattarn-a/filename/package.json", function () {});
-        Module.define( "/pattarn-a/filename/index.js", function () {});
+    describe("Method _findFile:", function () {
 
-        var pattarnB = "/pattarn-b/filename";
-        Module.define( "/pattarn-b/filename.js", function () {});
-        Module.define( "/pattarn-b/filename/package.json", function () {});
-        Module.define( "/pattarn-b/filename/index.js", function () {});
+        it("should return /pattarn/filename", function () {
+            var BASE = "/pattarn/filename";
+            Module.define( "/pattarn/filename", function () {});
+            Module.define( "/pattarn/filename.js", function () {});
+            Module.define( "/pattarn/filename/package.json", function () {});
+            Module.define( "/pattarn/filename/index.js", function () {});
 
-        var pattarnC = "/pattarn-c/filename";
-        Module.define( "/pattarn-c/filename/package.json", function () {});
-        Module.define( "/pattarn-c/filename/index.js", function () {});
-
-        var pattarnD = "/pattarn-d/filename";
-        Module.define( "/pattarn-d/filename/index.js", function () {});
-
-        var pattarnE = "/pattarn-e/filename";
-
-        it("should return /pattarn-a/filename", function () {
-            expect(Module._findFile(pattarnA)).toBe(pattarnA + '');
+            expect(Module._findFile(BASE)).toBe(BASE + '');
         });
 
-        it("should return /pattarn-b/filename.js", function () {
-            expect(Module._findFile(pattarnB)).toBe(pattarnB + '.js');
+        it("should return /pattarn/filename.js", function () {
+            var BASE = "/pattarn/filename";
+            Module.define( "/pattarn/filename.js", function () {});
+            Module.define( "/pattarn/filename/package.json", function () {});
+            Module.define( "/pattarn/filename/index.js", function () {});
+
+            expect(Module._findFile(BASE)).toBe(BASE + '.js');
         });
 
-        it("should return /pattarn-c/filename/package.json", function () {
-            expect(Module._findFile(pattarnC)).toBe(pattarnC + '/package.json');
+        it("should return /pattarn/filename/package.json", function () {
+            // this pattern, findFile try resolve 'main' module
+            var BASE = "/pattarn/filename";
+            Module.define( "/pattarn/filename/package.json", { main: './main.js' });
+            Module.define( "/pattarn/filename/index.js", function () {});
+            Module.define( "/pattarn/filename/main.js", function () {});
+
+            expect(Module._findFile(BASE)).toBe(BASE + '/main.js');
         });
 
         it("should return /pattarn-d/filename", function () {
-            expect(Module._findFile(pattarnD)).toBe(pattarnD + '/index.js');
-            // expect(Module._findFile('/pattarn-d/filename/')).toBe(pattarnD + '/index.js');
+            var BASE = "/pattarn-d/filename";
+            Module.define( "/pattarn-d/filename/index.js", function () {});
+
+            expect(Module._findFile(BASE)).toBe(BASE + '/index.js');
         });
 
         it("should return null when file not found.", function () {
-            expect(Module._findFile(pattarnE)).toBe(null);
+            var BASE = "/pattarn-e/filename";
+
+            expect(Module._findFile(BASE)).toBe(null);
+        });
+
+        it("should care package.json in core directories.", function () {
+            // this pattern, findFile try resolve 'main' module
+            var BASE = "pattarn/filename";
+            Module.define( "pattarn/filename/package.json", { main: './main.js' });
+            Module.define( "pattarn/filename/main.js", function () {});
+
+            expect(Module._findFile(BASE)).toBe(BASE + '/main.js');
+        });
+        it("should care nested package.json in core directories.", function () {
+            // this pattern, findFile try resolve 'main' module
+            var BASE = "pattarn/filename";
+            Module.define( "pattarn/filename/package.json", { main: './sub' });
+            Module.define( "pattarn/filename/sub/package.json", { main: './main.js' });
+            Module.define( "pattarn/filename/sub/main.js", function () {});
+
+            expect(Module._findFile(BASE)).toBe(BASE + '/sub/main.js');
         });
     });
 
-    describe("method _findModule:", function () {
-        var pathA = "/path/to/file", fileA = "file-A";
-        Module.define( "/path/to/file/node_modules/file-A", function () {});
-        Module.define( "/path/to/node_modules/file-A", function () {});
-        Module.define( "/path/node_modules/file-A", function () {});
-        Module.define( "/node_modules/file-A", function () {});
-
-        var pathB = "/path/to/file", fileB = "file-B";
-        Module.define( "/path/to/node_modules/file-B", function () {});
-        Module.define( "/path/node_modules/file-B", function () {});
-        Module.define( "/node_modules/file-B", function () {});
-
-        var pathC = "/path/to/file", fileC = "file-C";
-        Module.define( "/path/node_modules/file-C", function () {});
-        Module.define( "/node_modules/file-C", function () {});
-
-        var pathD = "/path/to/file", fileD = "file-D";
-        Module.define( "/node_modules/file-D", function () {});
-
-        var pathE = "/path/to/file", fileE = "file-E";
-
-        var pathF = "file", fileF = "file-F";
-
-        var pathG = "path/to/file", fileG = "file-G";
-        Module.define( "path/node_modules/file-G", function () {});
-        Module.define( "node_modules/file-G", function () {});
-
+    describe("Method _findModule:", function () {
 
         it("should return '/path/to/file/node_modules/file-A'", function () {
-            expect(Module._findModule(pathA, fileA)).toBe('/path/to/file/node_modules/file-A');
+            var PATH = "/path/to/file", fileA = "file-A";
+            Module.define( "/path/to/file/node_modules/file-A", function () {});
+            Module.define( "/path/to/node_modules/file-A", function () {});
+            Module.define( "/path/node_modules/file-A", function () {});
+            Module.define( "/node_modules/file-A", function () {});
+
+            expect(Module._findModule(PATH, fileA)).toBe('/path/to/file/node_modules/file-A');
         });
 
         it("should return '/path/to/node_modules/file-B'", function () {
-            expect(Module._findModule(pathB, fileB)).toBe('/path/to/node_modules/file-B');
+            var PATH = "/path/to/file", fileB = "file-B";
+            Module.define( "/path/to/node_modules/file-B", function () {});
+            Module.define( "/path/node_modules/file-B", function () {});
+            Module.define( "/node_modules/file-B", function () {});
+
+            expect(Module._findModule(PATH, fileB)).toBe('/path/to/node_modules/file-B');
         });
 
         it("should return '/path/node_modules/file-C'", function () {
-            expect(Module._findModule(pathC, fileC)).toBe('/path/node_modules/file-C');
+            var PATH = "/path/to/file", fileC = "file-C";
+            Module.define( "/path/node_modules/file-C", function () {});
+            Module.define( "/node_modules/file-C", function () {});
+
+            expect(Module._findModule(PATH, fileC)).toBe('/path/node_modules/file-C');
         });
 
         it("should return '/node_modules/file-D'", function () {
-            expect(Module._findModule(pathD, fileD)).toBe('/node_modules/file-D');
+            var PATH = "/path/to/file", fileD = "file-D";
+            Module.define( "/node_modules/file-D", function () {});
+
+            expect(Module._findModule(PATH, fileD)).toBe('/node_modules/file-D');
         });
 
         it("should return null when file not found.", function () {
-            expect(Module._findModule(pathE, fileE)).toBe(null);
+            var PATH = "/path/to/file", fileE = "file-E";
+
+            expect(Module._findModule(PATH, fileE)).toBe(null);
         });
 
         it("should return null when called from outside filepath.", function () {
-            expect(Module._findModule(pathF, fileF)).toBe(null);
+            var PATH = "file", fileF = "file-F";
+
+            expect(Module._findModule(PATH, fileF)).toBe(null);
         });
 
         it("should return 'path/node_modules/file-G'", function () {
-            expect(Module._findModule(pathG, fileG)).toBe('path/node_modules/file-G');
+            var PATH = "path/to/file", fileG = "file-G";
+            Module.define( "path/node_modules/file-G", function () {});
+            Module.define( "node_modules/file-G", function () {});
+
+            expect(Module._findModule(PATH, fileG)).toBe('path/node_modules/file-G');
         });
     });
 
     describe("Property _NativeModule:", function () {
 
+        var NativeModule;
+
+        beforeEach(function () {
+            NativeModule = Module._NativeModule;
+        });
+
         describe("'_NativeModule' itself:", function () {
             describe("has methods and properties.", function () {
                 it("Property filePaths", function () {
-                    expect(typeof Module._NativeModule.filePaths).toBe('object');
+                    expect(NativeModule.filePaths).toEqual(['core/', 'node_core/']);
                 });
                 it("method exists", function () {
-                    expect(typeof Module._NativeModule.exists).toBe('function');
+                    expect(typeof NativeModule.exists).toBe('function');
                 });
                 it("method getFilename", function () {
-                    expect(typeof Module._NativeModule.getFilename).toBe('function');
+                    expect(typeof NativeModule.getFilename).toBe('function');
                 });
                 it("method getObject", function () {
-                    expect(typeof Module._NativeModule.getObject).toBe('function');
+                    expect(typeof NativeModule.getObject).toBe('function');
                 });
             });
         });
 
-        describe("method exists:", function () {
-            it("", function () {
-                ;
+        describe("Method exists:", function () {
+            it("return if core module exists or not.", function () {
+                var PATH = "core/module", MODULE = "module";
+                Module.define( PATH, function () {});
+
+                expect(NativeModule.exists(MODULE)).toBe(true);
+            });
+            it("return if node_core module exists or not.", function () {
+                var PATH = "node_core/assert", MODULE = "assert";
+                Module.define( PATH, function () {});
+
+                expect(NativeModule.exists(MODULE)).toBe(true);
             });
         });
 
-        describe("method getFilename:", function () {
-            it("", function () {
-                ;
+        describe("Method getFilename:", function () {
+            it("should return core module.", function () {
+                var MODULE = "assert";
+                Module.define( "core/assert", function () {});
+                Module.define( "node_core/assert", function () {});
+
+                expect(NativeModule.getFilename(MODULE)).toBe("core/assert");
+            });
+
+            it("should return node_core module.", function () {
+                var MODULE = "assert";
+                Module.define( "node_core/assert", function () {});
+
+                expect(NativeModule.getFilename(MODULE)).toBe("node_core/assert");
+            });
+
+            it("should return null.", function () {
+                var MODULE = "assert";
+
+                expect(NativeModule.getFilename(MODULE)).toBe(null);
             });
         });
 
-        describe("method getObject:", function () {
-            it("", function () {
-                ;
+        describe("Method getObject:", function () {
+            it("should return global object.", function () {
+                var MODULE = "TESTOBJECT1";
+                var OBJECT = {};
+                global[MODULE] = OBJECT;
+
+                expect(NativeModule.getObject(MODULE)).toBe(OBJECT);
+            });
+            it("should return core module, instead of global object.", function () {
+                var MODULE = "TESTOBJECT2";
+                var OBJECT = {};
+                global[MODULE] = OBJECT;
+                Module.define( "core/" + MODULE, function () {});
+
+                expect(NativeModule.getObject(MODULE)).not.toBe(OBJECT);
+                expect(NativeModule.getObject(MODULE)).toBe(null);
             });
         });
     });
 
-    describe("method _resolveFilename:", function () {
+    describe("Method _resolveFilename:", function () {
         var PATH_DATA = [
-            // 明示的にフォルダを指定してみる？
-            //
             // test-pattern list. Item = [ parent, request, toBe ]
             // parent.filename is one of 2 types. '/path/to/file', 'node_core/file'.
-            // require is one of 6 types. 'module', './path', '../path', '/path', 'node_core', 'node_package'
-            // So, total matrix to be 2 x 5 = 10 patterns.
-            [ { filename: '/path/to/file.js'},          'module(1)',           'core/module(1)'],
-            [ { filename: '/path/to/file.js'},          './subfile.js(2)',     '/path/to/subfile.js(2)'],
-            [ { filename: '/path/to/file.js'},          '../lib/mylib(3)',     '/path/lib/mylib(3)'],
-            [ { filename: '/path/to/file.js'},          '/common/lib(4)',      '/common/lib(4)'],
-            [ { filename: '/path/to/file.js'},          'assert(5)',           'node_core/assert(5)'],
-            [ { filename: '/path/to/file.js'},          'package(6)',          '/path/node_modules/package(6)'],
+            // require is one of 7 types.
+            //      'module', './path', '../path', '/path', 'node_core', 'node_package', 'node_package/'
+            [ { filename: '/path/to/file.js'},      'module(1)',           'core/module(1)'],
+            [ { filename: '/path/to/file.js'},      './subfile.js(2)',     '/path/to/subfile.js(2)'],
+            [ { filename: '/path/to/file.js'},      '../lib/mylib(3)',     '/path/lib/mylib(3)'],
+            [ { filename: '/path/to/file.js'},      '/common/lib(4)',      '/common/lib(4)'],
+            [ { filename: '/path/to/file.js'},      'assert(5)',           'node_core/assert(5)'],
+            [ { filename: '/path/to/file.js'},      'package(6)',          '/path/node_modules/package(6)'],
+            [ { filename: '/path/to/file.js'},      'package(7)/',         '/path/node_modules/package(7)/index.js'],
 
-            [ { filename: 'node_core/assert.js'},       'module(7)',           'core/module(7)'],
-            [ { filename: 'node_core/assert.js'},       './sub/file(8)',       'node_core/sub/file(8)'],
-            [ { filename: 'node_core/sub/file.js'},     '../util(9)',          'node_core/util(9)'],
-            [ { filename: 'node_core/assert.js'},       '/package.json(10)',   '/package.json(10)'],
-            [ { filename: 'node_core/assert.js'},       'util(11)',            'node_core/util(11)'],
-            [ { filename: 'node_core/assert.js'},       'package(12)',         'node_core/node_modules/package(12)']
+            [ { filename: 'node_core/assert.js'},   'module(8)',           'core/module(8)'],
+            [ { filename: 'node_core/assert.js'},   './sub/file(9)',       'node_core/sub/file(9)'],
+            [ { filename: 'node_core/sub/file.js'}, '../util(10)',         'node_core/util(10)'],
+            [ { filename: 'node_core/assert.js'},   '/package.json(11)',   '/package.json(11)'],
+            [ { filename: 'node_core/assert.js'},   'util(12)',            'node_core/util(12)'],
+            [ { filename: 'node_core/sub/file.js'}, 'package(13)',         'node_core/node_modules/package(13)'],
+            [ { filename: 'node_core/sub/file.js'}, 'package(14)/',        'node_core/node_modules/package(14)/index.js'],
+
+            [ { filename: 'node_core/assert.js'},   'package(15)',         'node_core/node_modules/package(15)'],
+            [ { filename: 'node_core/assert.js'},   'package(15)/main.js', 'node_core/node_modules/package(15)/main.js'],
+            [ { filename: 'node_core/assert.js'},   'package(15)/package.json',
+                                                                           'node_core/node_modules/package(15)/package.json'],
+            [ { filename: 'node_core/assert.js'},   'package(15)/',        'node_core/node_modules/package(15)/main.js'],
+
+            [ { filename: '/path/to/file.js'},  '../lib(16)/main.js',      '/path/lib(16)/main.js'],
+            [ { filename: '/path/to/file.js'},  '../lib(16)/package.json', '/path/lib(16)/package.json'],
+            [ { filename: '/path/to/file.js'},  '../lib(16)',              '/path/lib(16)/main.js'],
+            [ { filename: '/path/to/file.js'},  '../lib(16)/',             '/path/lib(16)/main.js'],
         ];
 
-        for (var i = 0; i < PATH_DATA.length; i++) {
-            Module.define(PATH_DATA[i][2], function () {});
-        }
-
         it("should return PATH_DATA[i]", function () {
+            for (var i = 0; i < PATH_DATA.length; i++) {
+                Module.define(PATH_DATA[i][2], { main: './main.js' });
+            }
+
             for (var i = 0; i < PATH_DATA.length; i++) {
                 expect(Module._resolveFilename(PATH_DATA[i][1], PATH_DATA[i][0])).toBe(PATH_DATA[i][2]);
             }
         });
     });
 
+    xdescribe("Method _load:", function () {
+
+        var TEST_DATA = [
+                {   path:               undefined,
+                    parent:             {},
+
+                    getObject:          function () {},
+                    _resolveFilename:   function () {},
+                    _cache:             [],
+                    load:               function () {},
+
+                    result:             null
+                },
+                {   path:               undefined,
+                    parent:             '',
+
+                    getObject:          function (path) { return {}; },
+                    _resolveFilename:   function (path, parent) { return path; },
+                    _cache:             [],
+                    load:               function (filename) { module.exports = 'OK'; },
+
+                    result:             {}
+                },
+                {   path:               undefined,
+                    parent:             '',
+
+                    getObject:          function (path) { return {}; },
+                    _resolveFilename:   function (path, parent) { return path; },
+                    _cache:             [],
+                    load:               function (filename) { module.exports = 'OK'; },
+
+                    result:             {}
+                },
+            ];
+    });
+
     describe("method require - called in mainModule(Outside module):", function () {
         // Currentry, no test item.
     });
 
-    describe("method require - called inside module:", function () {
+    describe("Method require - called inside module:", function () {
 
         var PARENT_FILENAME = './REQUIRE_FUNCTION.js';
-        //var PARENT_FILENAME = '/REQUIRE_FUNCTION.js';
-        Module.define(PARENT_FILENAME,
-        function (exports, require, module, __filename, __dirname) {
-            exports.require = require;
-            exports.module = module;
-        });
-
         var TARGET_FILENAME = './REQUIRED_MODULE.js';
-        //var TARGET_FILENAME = '/REQUIRED_MODULE.js';
-        Module.define(TARGET_FILENAME,
-        function (exports, require, module, __filename, __dirname) {
-            exports.require = require;
-            exports.module = module;
-            exports.filename = __filename;
-            exports.dirname = __dirname;
-            exports.This = this;
-        });
+        var parent, target;
 
-        var parent = Module._require(PARENT_FILENAME);
-        var target = parent.require(TARGET_FILENAME).module;
+        beforeEach(function () {
+            Module.define(PARENT_FILENAME,
+            function (exports, require, module, __filename, __dirname) {
+                exports.require = require;
+                exports.module = module;
+            });
+
+            Module.define(TARGET_FILENAME,
+            function (exports, require, module, __filename, __dirname) {
+                exports.require = require;
+                exports.module = module;
+                exports.filename = __filename;
+                exports.dirname = __dirname;
+                exports.This = this;
+            });
+
+            parent = Module._require(PARENT_FILENAME);
+            target = parent.require(TARGET_FILENAME).module;
+        });
 
         describe("has has Methods and Properties:", function () {
             it("id", function () {
