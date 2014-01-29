@@ -15,7 +15,7 @@
 
 describe("codegs:", function () {
 
-    var codegs = require('../../lib/codegs/codegs.js');
+    var codegs = require('../../lib/codegs.js');
 
     beforeEach(function () {
         ;

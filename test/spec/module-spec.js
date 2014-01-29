@@ -4,7 +4,7 @@ describe("Module:", function () {
     var Module;
 
     beforeEach(function () {
-        Module = require('../../lib/codegs/module.js');
+        Module = require('../../lib/module.js');
         Module.__reset__();
     });
 
