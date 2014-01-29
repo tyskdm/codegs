@@ -5,11 +5,13 @@
   "author": "tsuyoshi.kdoama@gmail.com",
   "license": "MIT",
   "main": "module.js",
-  "bin" : { "codegs" : "./codegs.cli" },
+  "bin": {
+    "code": "./lib/code"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies" : {
-    "opts" : ">=1.2.2"
+  "dependencies": {
+    "argv": "0.0.2"
   }
 }
