@@ -24,7 +24,7 @@ describe("mockfs:", function () {
         });
 
         describe("should return true when directory exists:", function () {
-            it("case#1: stored path has not trairing slash.", function () {
+            it("case#1: stored path has not trailing slash.", function () {
                 var fs = new MockFs({
                         '/project' : { type: 'dir' }
                     });
@@ -32,7 +32,7 @@ describe("mockfs:", function () {
                 expect(fs.existsSync('/project')).toBe(true);
                 expect(fs.existsSync('/project/')).toBe(true);
             });
-            it("case#2: stored path has trairing slash.", function () {
+            it("case#2: stored path has trailing slash.", function () {
                 var fs = new MockFs({
                         '/project/' : { type: 'dir' }
                     });
@@ -58,10 +58,23 @@ describe("mockfs:", function () {
                     '/test' : { type: 'file' }
                 });
 
-            var stat = new MockFs(fs, '/test');
+            var stat = new MockFs.Stat(fs, '/test');
 
             expect(stat.mockfs).toBe(fs);
             expect(stat.filename).toBe('/test');
+        });
+
+        it("should keep same filename that stored in strage.", function () {
+            var fs = new MockFs({
+                    '/test1/' : { type: 'dir' },
+                    '/test2'  : { type: 'dir' }
+                });
+
+            expect(new MockFs.Stat(fs, '/test1' ).filename).toBe('/test1/');
+            expect(new MockFs.Stat(fs, '/test1/').filename).toBe('/test1/');
+
+            expect(new MockFs.Stat(fs, '/test2' ).filename).toBe('/test2');
+            expect(new MockFs.Stat(fs, '/test2/').filename).toBe('/test2');
         });
     });
 
@@ -71,10 +84,8 @@ describe("mockfs:", function () {
                     '/test' : { type: 'dir' }
                 });
 
-            var stat = fs.statSync('/test');
-
-            expect(stat.mockfs).toBe(fs);
-            expect(stat.filename).toBe('/test');
+            expect(fs.statSync('/test')).not.toBe(null);
+            expect(fs.statSync('/test/')).not.toBe(null);
         });
 
         it("should return null when target not exists.", function () {
@@ -82,9 +93,95 @@ describe("mockfs:", function () {
                     '/test' : { type: 'dir' }
                 });
 
-            var stat = fs.statSync('/NOTEXISTS');
+            expect(fs.statSync('/NOTEXISTS')).toBe(null);
+        });
+    });
 
-            expect(stat).toBe(null);
+    describe("Class Stat:", function () {
+        describe("Method isDirectory:", function () {
+            it("should return if it's directory or not.", function () {
+                var fs = new MockFs({
+                        '/test1' : { type: 'dir'  },
+                        '/test2' : { type: 'file' }
+                    });
+
+                expect(fs.statSync('/test1').isDirectory()).toBe(true);
+                expect(fs.statSync('/test2').isDirectory()).toBe(false);
+            });
+
+            it("should return if it's file or not.", function () {
+                var fs = new MockFs({
+                        '/test1' : { type: 'dir'  },
+                        '/test2' : { type: 'file' }
+                    });
+
+                expect(fs.statSync('/test1').isFile()).toBe(false);
+                expect(fs.statSync('/test2').isFile()).toBe(true);
+            });
+        });
+    });
+
+    describe("Method readdirSync(path):", function () {
+        it("should return list of files in directory pointed by path.", function () {
+            var fs = new MockFs({
+                    '/project/a'   : { type: 'file' },
+                    '/project/b'   : { type: 'dir'  },
+                    '/project/c/'  : { type: 'dir'  },
+                    '/project/c/d' : { type: 'file' },
+                    '/pro/e'       : { type: 'file' },
+                }),
+                result = [ 'a', 'b', 'c' ];
+
+            var list = fs.readdirSync('/project');
+            expect(list.length).toEqual(result.length);
+
+            for (var i = 0; i < list.length; i++) {
+                expect(list).toContain(result[i]);
+                expect(result).toContain(list[i]);
+            }
+
+            list = fs.readdirSync('/project/');
+            expect(list.length).toEqual(result.length);
+
+            for (var i = 0; i < list.length; i++) {
+                expect(list).toContain(result[i]);
+                expect(result).toContain(list[i]);
+            }
+        });
+
+        it("should return empty list if path is empty directory.", function () {
+            var fs = new MockFs({
+                    '/project/'    : { type: 'dir' },
+                }),
+                result = [ ];
+
+            var list = fs.readdirSync('/project');
+            expect(list.length).toEqual(result.length);
+
+            for (var i = 0; i < list.length; i++) {
+                expect(list).toContain(result[i]);
+                expect(result).toContain(list[i]);
+            }
+            list = fs.readdirSync('/project/');
+            expect(list.length).toEqual(result.length);
+
+            for (var i = 0; i < list.length; i++) {
+                expect(list).toContain(result[i]);
+                expect(result).toContain(list[i]);
+            }
+        });
+
+        it("should to throw when path is not existent.", function () {
+            var fs = new MockFs({
+                });
+
+            expect(function () {
+                fs.readdirSync('/project');
+            }).toThrow("Error: ENOENT, no such file or directory '/project'");
+
+            expect(function () {
+                fs.readdirSync('/project/');
+            }).toThrow("Error: ENOENT, no such file or directory '/project/'");
         });
     });
 });
