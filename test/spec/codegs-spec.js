@@ -1,18 +1,4 @@
 
-/*
-    var config = {
-        rootdir:    process.cwd(),
-
-        mainfile:   argv.targets.length === 0 ? './package.json' :
-                    argv.targets.length === 1 ? argv.targets[0] : null,
-
-        source:     argv.source     || [process.cwd()], // default current directory
-        output:     argv.output     || null,
-        core:       argv.core       || './core',
-        nodecore:   argv.nodecore   || './node_core'
-    };
-*/
-
 describe("codegs:", function () {
 
     var codegs = require('../../lib/codegs.js');
@@ -146,7 +132,13 @@ describe("codegs:", function () {
         });
     });
 
-
+    /*
+     *  Method addSourceFiles:
+     *  - add source files into two files lists, files['js'] and files['json'].
+     *  - serch files in paths configured by config.source.
+     */
+    describe("Method addSourceFiles:", function () {
+    });
 
 /*
     var config = {
@@ -166,52 +158,5 @@ describe("codegs:", function () {
 
     xdescribe("Method _parsePackageJson:", function () {
 
-    });
-
-    xdescribe("Method _joinPath:", function () {
-        it("should return full-filename.", function () {
-            expect(Module._joinPath('project/src', '../lib/assert.js')).toBe('project/lib/assert.js');
-            expect(Module._joinPath('/project/src', '../lib/assert.js')).toBe('/project/lib/assert.js');
-            expect(Module._joinPath('/project/src/', '../lib/assert.js')).toBe('/project/lib/assert.js');
-        });
-        it("overwrite basedir with requested path starts with slash.", function () {
-            expect(Module._joinPath('a/b/c', '/d/file.js')).toBe('/d/file.js');
-            expect(Module._joinPath('/a/b/c', '/d/file.js')).toBe('/d/file.js');
-            expect(Module._joinPath('/a/b/c/', '/d/file.js')).toBe('/d/file.js');
-        });
-        it("process up/down relative-path.", function () {
-            expect(Module._joinPath('a/b/c', '../../d/./e/../../../f/file.js')).toBe('f/file.js');
-            expect(Module._joinPath('/a/b/c', '../../d/./e/../../../f/file.js')).toBe('/f/file.js');
-            expect(Module._joinPath('/a/b/c/', '../../d/./e/../../../f/file.js')).toBe('/f/file.js');
-        });
-        it("keep trail slash.", function () {
-            expect(Module._joinPath('a/b', '../lib/module/')).toBe('a/lib/module/');
-            expect(Module._joinPath('/a/b', '../lib/module/')).toBe('/a/lib/module/');
-            expect(Module._joinPath('/a/b/', '../lib/module/')).toBe('/a/lib/module/');
-        });
-        it("take root folder as base directory.", function () {
-            expect(Module._joinPath('/', 'lib/module')).toBe('/lib/module');
-            expect(Module._joinPath('/', './lib/module')).toBe('/lib/module');
-            expect(Module._joinPath('/', './')).toBe('/');
-
-            function test () {
-                Module._joinPath('/', '../file.js');
-            }
-            expect(test).toThrow();
-        });
-        it("should throw in error cases.", function () {
-            function test1 () {
-                Module._joinPath('a/b', '../../../file.js');
-            }
-            function test2 () {
-                Module._joinPath('/a/b', '../../../file.js');
-            }
-            function test3 () {
-                Module._joinPath('/a/b/', '../../../file.js');
-            }
-            expect(test1).toThrow();
-            expect(test2).toThrow();
-            expect(test3).toThrow();
-        });
     });
 });
