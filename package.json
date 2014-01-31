@@ -1,12 +1,12 @@
 {
   "name": "codegs",
   "version": "0.1.4",
-  "description": "Compile node.js module files into one file with simple module system for Google Apps Script.",
+  "description": "Tool to pack Node.js module files and module system emulator within one source file.",
   "author": "tsuyoshi.kdoama@gmail.com",
   "license": "MIT",
-  "main": "module.js",
+  "main": "./lib/module.js",
   "bin": {
-    "code": "./lib/code"
+    "code": "./bin/code"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
