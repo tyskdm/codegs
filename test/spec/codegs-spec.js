@@ -49,7 +49,7 @@ describe("codegs:", function () {
 
     /*
      *  Method setup:
-     *  - set config info int object
+     *  - set config info into codegs object
      *  - find mainfile
      */
     describe("Method setup:", function () {
@@ -134,8 +134,25 @@ describe("codegs:", function () {
 
     /*
      *  Method addSourceFiles:
-     *  - add source files into two files lists, files['js'] and files['json'].
+     *
+     *  - add source files into two files listObjects, files['js'] and files['json'].
+     *    files['js'] = {
+     *          {realFilePath : codegsFilePath },
+     *          {'~/poject/lib/example.js' : '/lib/example.js' },   // source files
+     *          {'~/poject/core/assert.js' : 'core/assert.js' }     // core modules
+     *      };
+     *
      *  - serch files in paths configured by config.source.
+     *
+     *  - There's some of source types.
+     *    1) Core file  <-- don't care here.
+     *    2) main file  <-- don't care here.
+     *    3) kernel file  <-- don't care here.
+     *
+     *    4) core files
+     *    5) node_core files
+     *    6) node_modules
+     *    7) user source files
      */
     describe("Method addSourceFiles:", function () {
     });
