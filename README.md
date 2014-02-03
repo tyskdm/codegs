@@ -2,29 +2,44 @@
 
 A tool to pack Node.js module files and module system emulator within one source file.
 
-## First example.
 
-~/yourproject/main.js
+## First example
+
+I think looking this simple example is the easiest way to understand what happens by this tool.
+
+main.js
+
 ```javascript
-var lib = require('./lib);
-
+var lib = require('./lib.js');
 console.log('3 + 4 = ' + lib.sum(3, 4));
 ```
 
-~/yourproject/lib.js
+lib.js
+
 ```javascript
 module.exports.sum = function (a, b) {
     return a + b;
 };
 ```
 
-goto yourproject and type:
+these are valid Node.js modules.
+So you can run:
+
+```shell
+$ node main.js
+7
+```
+
+Then, try:
+
 ```shell
 $ code main.js
 ```
 
-then you see packed source code:
+and you see merged source code:
+
 ```shell
+$ code main.js
 // lib.js
 // line: 3
 require('module').define('/main.js',
@@ -34,10 +49,9 @@ module.exports.sum = function (a, b) {
 };
 });
 // main.js
-// line: 3
+// line: 2
 require('module').runmain('/main.js');
 var lib = require('./lib);
-
 console.log('3 + 4 = ' + lib.sum(3, 4));
 require('module').endmain('/main.js');
 // module.js
@@ -47,12 +61,17 @@ function require(path) {
             :
 ```
 
-that is packed main.js, lib.js and Node.js module system emulator.
-So it's executable.
+That includes main.js lib.js, and it's executable.
+
 ```shell
 $ code main.js > out.js
 $ node out.js
 7
 ```
+
+That's Code.gs.
+
+
+## Why?
 
 
