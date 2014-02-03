@@ -5,11 +5,11 @@ A tool to pack Node.js module files and module system emulator within one source
 ## First example.
 
 ~/yourproject/main.js
-    ```javascript
-    var lib = require('./lib);
+```javascript
+var lib = require('./lib);
 
-    console.log('3 + 4 = ' + lib.sum(3, 4));
-    ```
+console.log('3 + 4 = ' + lib.sum(3, 4));
+```
 
 ~/yourproject/lib.js
 ```javascript
