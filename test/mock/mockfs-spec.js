@@ -88,6 +88,15 @@ describe("mockfs:", function () {
             expect(fs.statSync('/test/')).not.toBe(null);
         });
 
+        it("should return stat when directory exists by specifing file in taht.", function () {
+            var fs = new MockFs({
+                    '/test/foo.bar' : { type: 'file' }
+                });
+
+            expect(fs.statSync('/test')).not.toBe(null);
+            expect(fs.statSync('/test/')).not.toBe(null);
+        });
+
         it("should return null when target not exists.", function () {
             var fs = new MockFs({
                     '/test' : { type: 'dir' }

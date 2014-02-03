@@ -5,7 +5,19 @@ function MockFs(files) {
 }
 
 MockFs.prototype.existsSync = function (filename) {
-    return this._findFilename(filename) !== null;
+    if (this._findFilename(filename) !== null) return true;
+
+    filename += (filename.slice(-1) === '/') ? '' : '/';
+    var filepath, pl = filename.length;
+
+    for (filepath in this.storage) {
+        if (filepath.substr(0, pl) === filename) {
+            this.storage[filename] =  { type: 'dir' };
+            return true;
+        }
+    }
+
+    return false;
 };
 
 MockFs.prototype.statSync = function (filename) {
