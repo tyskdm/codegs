@@ -23,9 +23,6 @@ describe("codegs:", function () {
             it("Method addSourceFiles", function () {
                 expect(typeof codegs.prototype.addSourceFiles).toBe('function');
             });
-            it("Method removeIgnoreFiles", function () {
-                expect(typeof codegs.prototype.removeIgnoreFiles).toBe('function');
-            });
             it("Method compile", function () {
                 expect(typeof codegs.prototype.compile).toBe('function');
             });
@@ -154,7 +151,151 @@ describe("codegs:", function () {
      *    6) node_modules
      *    7) user source files
      */
-    describe("Method addSourceFiles:", function () {
+    describe("Methods to add source files:", function () {
+
+        describe("Static private Method _addFilesToList:", function () {
+
+            it("case#1 : add files in ./core directory.", function () {
+                var mockfs = new MockFs({
+                    '/project/core/process.js': { type: 'file'},
+                    '/project/core/Buffer.js':  { type: 'file'},
+                });
+
+                var list = {};
+                var err = codegs._addFilesToList(list, '/project/core', 'core/', mockfs);
+
+                expect(err).toBeNull();
+                expect(list).toEqual({
+                    '/project/core/process.js': { type: 'js', path: 'core/process.js' },
+                    '/project/core/Buffer.js' : { type: 'js', path: 'core/Buffer.js' },
+                });
+            });
+
+            it("case#2 : add files from empty directory.", function () {
+                var mockfs = new MockFs({
+                    '/project/core':  { type: 'dir'},
+                });
+
+                var list = {};
+                var err = codegs._addFilesToList(list, '/project/core', 'core/', mockfs);
+
+                expect(err).toBeNull();
+                expect(list).toEqual({
+                    // empty.
+                });
+            });
+
+            it("case#3 : add files in ./core nested directory.", function () {
+                var mockfs = new MockFs({
+                    '/project/core/process.js':     { type: 'file'},
+                    '/project/core/lib/Buffer.js':  { type: 'file'},
+                    '/project/core/lib/sub/a.js':   { type: 'file'},
+                });
+
+                var list = {};
+                var err = codegs._addFilesToList(list, '/project/core', 'core/', mockfs);
+
+                expect(err).toBeNull();
+                expect(list).toEqual({
+                    '/project/core/process.js':     { type: 'js', path: 'core/process.js' },
+                    '/project/core/lib/Buffer.js':  { type: 'js', path: 'core/lib/Buffer.js' },
+                    '/project/core/lib/sub/a.js':   { type: 'js', path: 'core/lib/sub/a.js' },
+                });
+
+            });
+
+            it("case#4 : do nothing when directory not exists.", function () {
+                var mockfs = new MockFs({
+                    // empty.
+                });
+
+                var list = {};
+                var err = codegs._addFilesToList(list, '/project/core', 'core/', mockfs);
+
+                expect(err).toBeNull();
+                expect(list).toEqual({
+                    // empty.
+                });
+            });
+        });
+
+        describe("Method addCoreFiles:", function () {
+            // TODO: should check the directory exists or not.
+
+            it("case#1 : add files in ./core directory.", function () {
+                var mockfs = new MockFs({
+                    '/project/core/process.js':     { type: 'file'},
+                    '/project/core/Buffer.js':      { type: 'file'},
+                    '/project/main.js':             { type: 'file'},
+                });
+                var code = codegs.create();
+                expect(code.setup({
+                        rootdir:    '/project',
+                        mainfile:   'main.js',
+                        core:       './core'
+                    }, mockfs)).toBeNull();
+
+                var err = code.addCoreFiles(mockfs);
+                expect(err).toBeNull();
+                expect(code.files.core).toEqual({
+                    '/project/core/process.js': { type: 'js', path: 'core/process.js' },
+                    '/project/core/Buffer.js' : { type: 'js', path: 'core/Buffer.js' },
+                });
+            });
+        });
+
+        describe("Method addNodeCoreFiles:", function () {
+            // TODO: should check the directory exists or not.
+
+            it("case#1 : add files in ./node_core directory.", function () {
+                var mockfs = new MockFs({
+                    '/project/node_core/util.js':   { type: 'file'},
+                    '/project/node_core/assert.js': { type: 'file'},
+                    '/project/main.js':             { type: 'file'},
+                });
+                var code = codegs.create();
+                expect(code.setup({
+                        rootdir:    '/project',
+                        mainfile:   'main.js',
+                        node_core:  './node_core'
+                    }, mockfs)).toBeNull();
+
+                var err = code.addNodeCoreFiles(mockfs);
+                expect(err).toBeNull();
+                expect(code.files.node_core).toEqual({
+                    '/project/node_core/util.js':   { type: 'js', path: 'node_core/util.js' },
+                    '/project/node_core/assert.js': { type: 'js', path: 'node_core/assert.js' },
+                });
+            });
+        });
+
+        describe("Method addNodeModules:", function () {
+            // TODO: should check the directory exists or not.
+
+            it("case#1 : add files in ./node_modules directory.", function () {
+                var mockfs = new MockFs({
+                    '/project/node_modules/argv.js':      { type: 'file'},
+                    '/project/node_modules/minimatch.js': { type: 'file'},
+                    '/project/main.js':                   { type: 'file'},
+                });
+                var code = codegs.create();
+                expect(code.setup({
+                        rootdir:    '/project',
+                        mainfile:   'main.js',
+                    }, mockfs)).toBeNull();
+
+                var err = code.addNodeModules(mockfs);
+                expect(err).toBeNull();
+                expect(code.files.node_modules).toEqual({
+                    '/project/node_modules/argv.js':      { type: 'js', path: '/node_modules/argv.js' },
+                    '/project/node_modules/minimatch.js': { type: 'js', path: '/node_modules/minimatch.js' },
+                });
+            });
+        });
+
+        describe("Method addSourceFiles:", function () {
+
+        });
     });
 
 /*
