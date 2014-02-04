@@ -193,4 +193,46 @@ describe("mockfs:", function () {
             }).toThrow("Error: ENOENT, no such file or directory '/project/'");
         });
     });
+
+    describe("Method readFileSync(filename,[options]):", function () {
+        it("should return content of file.", function () {
+            var fs = new MockFs({
+                    '/project/a'   : { type: 'file', content: 'A' },
+                });
+
+            var content = fs.readFileSync('/project/a', {encoding: 'utf8'});
+            expect(content).toEqual('A');
+        });
+
+        it("should throw if file not exists.", function () {
+            var fs = new MockFs({
+                });
+
+            expect(function () {
+                fs.readFileSync('/project/a', {encoding: 'utf8'});
+            }).toThrow("Error: ENOENT, no such file or directory '/project/a'");
+        });
+
+        it("should throw if filename is directory.", function () {
+            var fs = new MockFs({
+                    '/project/a'   : { type: 'dir' },
+                });
+
+            expect(function () {
+                fs.readFileSync('/project/a', {encoding: 'utf8'});
+            }).toThrow("Error: EISDIR, illegal operation on a directory");
+        });
+
+        //
+        it("should throw if option.encoding is invalid.", function () {
+            var fs = new MockFs({
+                    '/project/a'   : { type: 'file', content: 'A' },
+                });
+
+            expect(function () {
+                fs.readFileSync('/project/a', {encoding: 'INVALID'});
+            }).toThrow("Error: Unknown encoding: INVALID");
+        });
+    });
+
 });

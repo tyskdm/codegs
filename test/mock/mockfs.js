@@ -95,4 +95,24 @@ MockFs.prototype.readdirSync = function (path) {
 };
 
 
+MockFs.prototype.readFileSync = function (filename, options) {
+    options = options || { encoding: null };
+
+    if (options.encoding !== 'utf8') {
+        // Actually, Node.js returns Buffer when encoding === null.
+        throw new Error("Error: Unknown encoding: " + options.encoding);
+    }
+
+    if ( ! this.existsSync(filename)) {
+        throw new Error("Error: ENOENT, no such file or directory '" + filename + "'");
+    }
+
+    var file = this._findFilename(filename);
+    if (this.storage[file].type !== 'file') {
+        throw new Error("Error: EISDIR, illegal operation on a directory");
+    }
+
+    return this.storage[file].content;
+}
+
 module.exports = MockFs;
