@@ -601,4 +601,18 @@ describe("Module:", function () {
             });
         });
     });
+
+    describe("Method wrap:", function () {
+        it("should return wrapped content.", function () {
+            expect(Module.wrap('', 'FILENAME', 'js')).toBe(
+                    "require('module').define('FILENAME',\n" +
+                    "function (exports, require, module, __filename, __dirname) {\n" +
+                    "\n});\n"
+                );
+        });
+
+        it("should return null when filetype is invalid.", function () {
+            expect(Module.wrap('', 'FILENAME', 'INVALIDTYPE')).toBeNull();
+        });
+    });
 });
