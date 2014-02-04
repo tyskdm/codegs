@@ -353,6 +353,44 @@ describe("codegs:", function () {
                 });
             });
         });
+
+        xdescribe("Static private Method _isIgnoreFile:", function () {
+
+            it("case#1 : add files in ./core directory.", function () {
+                var mockfs = new MockFs({
+                    '/project/core/process.js':     { type: 'file'},
+                    '/project/core/Buffer.json':    { type: 'file'},
+                });
+
+                var list = {};
+                var err = codegs._addFilesToList(list, '/project/core', 'core/', mockfs);
+
+                expect(err).toBeNull();
+                expect(list).toEqual({
+                    '/project/core/process.js':     { type: 'js',   path: 'core/process.js' },
+                    '/project/core/Buffer.json':    { type: 'json', path: 'core/Buffer.json' },
+                });
+            });
+        });
+
+        xdescribe("Static private Method _addIgnorePath:", function () {
+
+            it("case#1 : add files in ./core directory.", function () {
+                var mockfs = new MockFs({
+                    '/project/core/process.js':     { type: 'file'},
+                    '/project/core/Buffer.json':    { type: 'file'},
+                });
+
+                var list = {};
+                var err = codegs._addFilesToList(list, '/project/core', 'core/', mockfs);
+
+                expect(err).toBeNull();
+                expect(list).toEqual({
+                    '/project/core/process.js':     { type: 'js',   path: 'core/process.js' },
+                    '/project/core/Buffer.json':    { type: 'json', path: 'core/Buffer.json' },
+                });
+            });
+        });
     });
 
 
