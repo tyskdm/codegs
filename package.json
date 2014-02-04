@@ -1,6 +1,6 @@
 {
   "name": "codegs",
-  "version": "0.1.4",
+  "version": "0.0.2",
   "description": "Tool to pack Node.js module files and module system emulator within one source file.",
   "author": "tsuyoshi.kdoama@gmail.com",
   "license": "MIT",
