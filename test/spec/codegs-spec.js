@@ -62,11 +62,12 @@ describe("codegs:", function () {
      *  Method setup:
      *  - set config info into codegs object
      *  - find mainfile
+     *  - TODO: should check all options(files and directories)
      */
     describe("Method setup:", function () {
         var DUMMY_CONFIG = {
             rootdir:  '/project',
-            mainfile: 'main.js'
+            mainfile: '/project/main.js'
         };
 
         it("should store config-info into object", function () {
@@ -87,7 +88,7 @@ describe("codegs:", function () {
                 var code = codegs.create();
                 var error = code.setup({
                         rootdir:    '/home/usr/project',
-                        mainfile:   'main.js'
+                        mainfile:   '/home/usr/project/main.js'
                     }, mockfs);
 
                 expect(error).toBe(null);
@@ -102,7 +103,7 @@ describe("codegs:", function () {
                 var code = codegs.create();
                 var error = code.setup({
                         rootdir:    '/home/usr/project',
-                        mainfile:   'main.js'
+                        mainfile:   '/home/usr/project/main.js'
                     }, mockfs);
 
                 expect(error).toBe('Error: main file is not existent.');
@@ -118,7 +119,7 @@ describe("codegs:", function () {
                 var code = codegs.create();
                 var error = code.setup({
                         rootdir:    '/home/usr/project',
-                        mainfile:   'main.js'
+                        mainfile:   '/home/usr/project/main.js'
                     }, mockfs);
 
                 expect(error).toBe('Error: main file is not found.');
@@ -134,7 +135,7 @@ describe("codegs:", function () {
                 var code = codegs.create();
                 var error = code.setup({
                         rootdir:    '/home/usr/project',
-                        mainfile:   'main.js'
+                        mainfile:   '/home/usr/project/main.js'
                     }, mockfs);
 
                 expect(error).toBe('Error: main file is not valid filetype.');
@@ -244,8 +245,8 @@ describe("codegs:", function () {
                 var code = codegs.create();
                 expect(code.setup({
                         rootdir:    '/project',
-                        mainfile:   'main.js',
-                        core:       './core'
+                        mainfile:   '/project/main.js',
+                        core:       '/project/core'
                     }, mockfs)).toBeNull();
 
                 var err = code.addCoreFiles(mockfs);
@@ -269,8 +270,8 @@ describe("codegs:", function () {
                 var code = codegs.create();
                 expect(code.setup({
                         rootdir:    '/project',
-                        mainfile:   'main.js',
-                        node_core:  './node_core'
+                        mainfile:   '/project/main.js',
+                        node_core:  '/project/node_core'
                     }, mockfs)).toBeNull();
 
                 var err = code.addNodeCoreFiles(mockfs);
@@ -294,7 +295,7 @@ describe("codegs:", function () {
                 var code = codegs.create();
                 expect(code.setup({
                         rootdir:    '/project',
-                        mainfile:   'main.js',
+                        mainfile:   '/project/main.js',
                     }, mockfs)).toBeNull();
 
                 var err = code.addNodeModules(mockfs);
@@ -318,8 +319,8 @@ describe("codegs:", function () {
                 var code = codegs.create();
                 expect(code.setup({
                         rootdir:    '/project',
-                        mainfile:   'index.js',
-                        source:     ['./'],
+                        mainfile:   '/project/index.js',
+                        source:     ['/project'],
                     }, mockfs)).toBeNull();
 
                 var err = code.addSourceFiles(mockfs);
@@ -341,8 +342,8 @@ describe("codegs:", function () {
                 var code = codegs.create();
                 expect(code.setup({
                         rootdir:    '/project',
-                        mainfile:   'index.js',
-                        source:     ['lib/', './bin'],
+                        mainfile:   '/project/index.js',
+                        source:     ['/project/lib/', '/project/bin'],
                     }, mockfs)).toBeNull();
 
                 var err = code.addSourceFiles(mockfs);
