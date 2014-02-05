@@ -1,8 +1,15 @@
 {
   "name": "codegs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Tool to pack Node.js module files and module system emulator within one source file.",
-  "author": "tsuyoshi.kdoama@gmail.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tyskdm/codegs.git"
+  },
+  "author": {
+    "name": "Tsuyoshi Kodama",
+    "email": "tsuyoshi.kodama@gmail.com",
+  },
   "license": "MIT",
   "main": "./lib/module.js",
   "bin": {
