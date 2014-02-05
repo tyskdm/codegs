@@ -318,6 +318,7 @@ describe("codegs:", function () {
                 var mockfs = new MockFs({
                     '/project/modules/tool.js':     { type: 'file'},
                     '/project/modules/util.js':     { type: 'file'},
+                    '/project/lib.js':              { type: 'file'},
                     '/project/index.js':            { type: 'file'},
                 });
                 var code = codegs.create();
@@ -332,7 +333,7 @@ describe("codegs:", function () {
                 expect(code.files.source).toEqual({
                     '/project/modules/tool.js':     { type: 'js', path: '/modules/tool.js' },
                     '/project/modules/util.js':     { type: 'js', path: '/modules/util.js' },
-                    '/project/index.js':            { type: 'js', path: '/index.js' },
+                    '/project/lib.js':              { type: 'js', path: '/lib.js' },
                 });
             });
 
