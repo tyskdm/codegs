@@ -8,7 +8,7 @@
   },
   "author": {
     "name": "Tsuyoshi Kodama",
-    "email": "tsuyoshi.kodama@gmail.com",
+    "email": "tsuyoshi.kodama@gmail.com"
   },
   "license": "MIT",
   "main": "./lib/module.js",
