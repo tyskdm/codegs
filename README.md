@@ -3,6 +3,10 @@
 A tool to pack Node.js module files and module system emulator within one source file.
 That source file can run on [Google Apps Script](https://developers.google.com/apps-script/) environment or perhaps other Javascript engines.
 
+### Status
+
+* Now still coding and debugging.
+* module.js core library is almost OK.
 
 ## First example
 
@@ -144,7 +148,7 @@ If not set by commandline option, Code.gs use project directory as source direct
 
 #### Output file
 
-[Current version] Command line option `-o`/`--output` or `stdout`.<br/>
+[Current version] Command line option `-o`/`--output` or `stdout`.
 
 Not set, Code.gs outputs to standard output.
 
