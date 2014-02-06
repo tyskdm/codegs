@@ -1,7 +1,7 @@
 {
   "name": "codegs",
-  "version": "0.0.4",
-  "description": "Tool to pack Node.js module files and module system emulator within one source file.",
+  "version": "0.0.5",
+  "description": "Tool to pack Node.js module files into one source code with module system emulator.",
   "repository": {
     "type": "git",
     "url": "https://github.com/tyskdm/codegs.git"
