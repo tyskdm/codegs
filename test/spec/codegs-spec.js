@@ -52,8 +52,23 @@ describe("codegs:", function () {
 
 
     describe("Method create:", function () {
+        var DUMMY_CONFIG = {
+            rootdir:  '/project',
+            mainfile: '/project/main.js'
+        };
+
         it("creates new codegs object.", function () {
             expect(codegs.create() instanceof codegs).toBe(true);
+        });
+
+        it("should set config-info into object", function () {
+            var code = codegs.create(DUMMY_CONFIG);
+            expect(code.config).toBe(DUMMY_CONFIG);
+        });
+
+        it("should set null when argument not exists.", function () {
+            var code = codegs.create();
+            expect(code.config).toBe(null);
         });
     });
 
@@ -70,11 +85,19 @@ describe("codegs:", function () {
             mainfile: '/project/main.js'
         };
 
-        it("should store config-info into object", function () {
+        xit("should store config-info into object", function () {
             var code = codegs.create();
             expect(code.config).toBe(null);
 
             code.setup(DUMMY_CONFIG);
+            expect(code.config).toBe(DUMMY_CONFIG);
+        });
+
+        xit("should not change config when argument not exists.", function () {
+            var code = codegs.create(DUMMY_CONFIG);
+            expect(code.config).toBe(DUMMY_CONFIG);
+
+            code.setup();
             expect(code.config).toBe(DUMMY_CONFIG);
         });
 
@@ -85,11 +108,11 @@ describe("codegs:", function () {
                     '/home/usr/project/main.js' :       { type: 'file'},
                 });
 
-                var code = codegs.create();
-                var error = code.setup({
+                var code = codegs.create({
                         rootdir:    '/home/usr/project',
                         mainfile:   '/home/usr/project/main.js'
-                    }, mockfs);
+                    });
+                var error = code.setup(mockfs);
 
                 expect(error).toBe(null);
                 expect(code.files.main).toBe('/home/usr/project/main.js');
@@ -100,11 +123,11 @@ describe("codegs:", function () {
                     '/home/usr/project' :               { type: 'dir' },
                 });
 
-                var code = codegs.create();
-                var error = code.setup({
+                var code = codegs.create({
                         rootdir:    '/home/usr/project',
                         mainfile:   '/home/usr/project/main.js'
-                    }, mockfs);
+                    });
+                var error = code.setup(mockfs);
 
                 expect(error).toBe('Error: main file is not existent.');
                 expect(code.files.main).toBe(null);
@@ -116,11 +139,11 @@ describe("codegs:", function () {
                     '/home/usr/project/main.js' :       { type: 'dir' },
                 });
 
-                var code = codegs.create();
-                var error = code.setup({
+                var code = codegs.create({
                         rootdir:    '/home/usr/project',
                         mainfile:   '/home/usr/project/main.js'
-                    }, mockfs);
+                    });
+                var error = code.setup(mockfs);
 
                 expect(error).toBe('Error: main file is not found.');
                 expect(code.files.main).toBe(null);
@@ -132,11 +155,11 @@ describe("codegs:", function () {
                     '/home/usr/project/main.js' :       { type: 'INVALID' },
                 });
 
-                var code = codegs.create();
-                var error = code.setup({
+                var code = codegs.create({
                         rootdir:    '/home/usr/project',
                         mainfile:   '/home/usr/project/main.js'
-                    }, mockfs);
+                    });
+                var error = code.setup(mockfs);
 
                 expect(error).toBe('Error: main file is not valid filetype.');
                 expect(code.files.main).toBe(null);
@@ -246,12 +269,20 @@ describe("codegs:", function () {
                     '/project/core/Buffer.js':      { type: 'file'},
                     '/project/main.js':             { type: 'file'},
                 });
-                var code = codegs.create();
-                expect(code.setup({
+
+                //var code = codegs.create();
+                //expect(code.setup({
+                //        rootdir:    '/project',
+                //        mainfile:   '/project/main.js',
+                //        core:       '/project/core'
+                //    }, mockfs)).toBeNull();
+
+                var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/main.js',
                         core:       '/project/core'
-                    }, mockfs)).toBeNull();
+                    });
+                expect(code.setup(mockfs)).toBeNull();
 
                 var err = code.addCoreFiles(mockfs);
                 expect(err).toBeNull();
@@ -271,12 +302,19 @@ describe("codegs:", function () {
                     '/project/node_core/assert.js': { type: 'file'},
                     '/project/main.js':             { type: 'file'},
                 });
-                var code = codegs.create();
-                expect(code.setup({
+                //var code = codegs.create();
+                //expect(code.setup({
+                //        rootdir:    '/project',
+                //        mainfile:   '/project/main.js',
+                //        node_core:  '/project/node_core'
+                //    }, mockfs)).toBeNull();
+
+                var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/main.js',
-                        node_core:  '/project/node_core'
-                    }, mockfs)).toBeNull();
+                        node_core:       '/project/node_core'
+                    });
+                expect(code.setup(mockfs)).toBeNull();
 
                 var err = code.addNodeCoreFiles(mockfs);
                 expect(err).toBeNull();
@@ -296,11 +334,18 @@ describe("codegs:", function () {
                     '/project/node_modules/minimatch.js': { type: 'file'},
                     '/project/main.js':                   { type: 'file'},
                 });
-                var code = codegs.create();
-                expect(code.setup({
+
+                //var code = codegs.create();
+                //expect(code.setup({
+                //        rootdir:    '/project',
+                //        mainfile:   '/project/main.js',
+                //    }, mockfs)).toBeNull();
+
+                var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/main.js',
-                    }, mockfs)).toBeNull();
+                    });
+                expect(code.setup(mockfs)).toBeNull();
 
                 var err = code.addNodeModules(mockfs);
                 expect(err).toBeNull();
@@ -321,12 +366,20 @@ describe("codegs:", function () {
                     '/project/lib.js':              { type: 'file'},
                     '/project/index.js':            { type: 'file'},
                 });
-                var code = codegs.create();
-                expect(code.setup({
+
+                //var code = codegs.create();
+                //expect(code.setup({
+                //        rootdir:    '/project',
+                //        mainfile:   '/project/index.js',
+                //        source:     ['/project'],
+                //    }, mockfs)).toBeNull();
+
+                var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/index.js',
                         source:     ['/project'],
-                    }, mockfs)).toBeNull();
+                    });
+                expect(code.setup(mockfs)).toBeNull();
 
                 var err = code.addSourceFiles(mockfs);
                 expect(err).toBeNull();
@@ -344,12 +397,20 @@ describe("codegs:", function () {
                     '/project/bin/cli.js':          { type: 'file'},
                     '/project/index.js':            { type: 'file'},
                 });
-                var code = codegs.create();
-                expect(code.setup({
+
+                //var code = codegs.create();
+                //expect(code.setup({
+                //        rootdir:    '/project',
+                //        mainfile:   '/project/index.js',
+                //        source:     ['/project/lib/', '/project/bin'],
+                //    }, mockfs)).toBeNull();
+
+                var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/index.js',
                         source:     ['/project/lib/', '/project/bin'],
-                    }, mockfs)).toBeNull();
+                    });
+                expect(code.setup(mockfs)).toBeNull();
 
                 var err = code.addSourceFiles(mockfs);
                 expect(err).toBeNull();
@@ -443,12 +504,20 @@ describe("codegs:", function () {
                 '/project/index.js':             { type: 'file', content: '// ## index.js ##\n' },
                 '/module.js':                    { type: 'file', content: '// ## module.js ##\n' },
             });
-            var code = codegs.create();
-            expect(code.setup({
+
+            //var code = codegs.create();
+            //expect(code.setup({
+            //        rootdir:    '/project',
+            //        mainfile:   '/project/index.js',
+            //        kernel:     '/module.js',
+            //    }, mockfs)).toBeNull();
+            var code = codegs.create({
                     rootdir:    '/project',
                     mainfile:   '/project/index.js',
                     kernel:     '/module.js',
-                }, mockfs)).toBeNull();
+                });
+            expect(code.setup(mockfs)).toBeNull();
+
             code.files.core = {
                 '/project/core/module.js':       { type: 'js',   path: 'core/module.js' },
                 '/project/core/dom.json':        { type: 'json', path: 'core/dom.json' },
@@ -467,12 +536,20 @@ describe("codegs:", function () {
                 '/project/index.js':            { type: 'file', content: '// ## index.js ##\n' },
                 '/module.js':                    { type: 'file', content: '// ## module.js ##\n' },
             });
-            var code = codegs.create();
-            expect(code.setup({
+
+            //var code = codegs.create();
+            //expect(code.setup({
+            //        rootdir:    '/project',
+            //        mainfile:   '/project/index.js',
+            //        kernel:     '/module.js',
+            //    }, mockfs)).toBeNull();
+            var code = codegs.create({
                     rootdir:    '/project',
                     mainfile:   '/project/index.js',
                     kernel:     '/module.js',
-                }, mockfs)).toBeNull();
+                });
+            expect(code.setup(mockfs)).toBeNull();
+
             code.files.node_core = {
                 '/project/node_core/assert.js': { type: 'js',   path: 'node_core/assert.js' },
                 '/project/node_core/util.json': { type: 'json', path: 'node_core/util.json' },
@@ -491,12 +568,19 @@ describe("codegs:", function () {
                 '/project/index.js':            { type: 'file', content: '// ## index.js ##\n' },
                 '/module.js':                    { type: 'file', content: '// ## module.js ##\n' },
             });
-            var code = codegs.create();
-            expect(code.setup({
+            //var code = codegs.create();
+            //expect(code.setup({
+            //        rootdir:    '/project',
+            //        mainfile:   '/project/index.js',
+            //        kernel:     '/module.js',
+            //    }, mockfs)).toBeNull();
+            var code = codegs.create({
                     rootdir:    '/project',
                     mainfile:   '/project/index.js',
                     kernel:     '/module.js',
-                }, mockfs)).toBeNull();
+                });
+            expect(code.setup(mockfs)).toBeNull();
+
             code.files.source = {
                 '/project/bin/cli.js':          { type: 'js', path: '/bin/cli.js' },
                 '/project/lib/module.js':       { type: 'js', path: '/lib/module.js' },
@@ -513,12 +597,18 @@ describe("codegs:", function () {
                 '/project/index.js':            { type: 'file', content: '// ## index.js ##\n' },
                 '/module.js':                    { type: 'file', content: '// ## module.js ##\n' },
             });
-            var code = codegs.create();
-            expect(code.setup({
+            //var code = codegs.create();
+            //expect(code.setup({
+            //        rootdir:    '/project',
+            //        mainfile:   '/project/index.js',
+            //        kernel:     '/module.js',
+            //    }, mockfs)).toBeNull();
+            var code = codegs.create({
                     rootdir:    '/project',
                     mainfile:   '/project/index.js',
                     kernel:     '/module.js',
-                }, mockfs)).toBeNull();
+                });
+            expect(code.setup(mockfs)).toBeNull();
 
             var error = code.compile(mockfs);
             expect(error).toBeNull();
