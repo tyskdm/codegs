@@ -4,9 +4,8 @@ A tool to pack Node.js module files and module system emulator within one source
 That source file can run on [Google Apps Script](https://developers.google.com/apps-script/) environment or perhaps other Javascript engines.
 
 ### Status
-
+* Basic functionality working.
 * Now still coding and debugging.
-* module.js core library is almost OK.
 
 ## First example
 
@@ -127,7 +126,7 @@ It should be relative to the root of project directory.
 
 **memo**<br/>
 GAS entry functions should be defined in global scope with `function` statement.<br/>
-`function onOpen()`, `onEdit()`, `doGet()`, or `YOURENTRYFUNCTION()`, etc., has to be in this mainfile.
+`function onOpen() {}`, `function doGet() {}`, or `function YOURENTRYFUNCTION() {}`, etc., has to be in this mainfile.
 
 
 #### Project directory
@@ -155,9 +154,36 @@ Not set, Code.gs outputs to standard output.
 
 
 ### Advanced options
+
+* node_modules
 * Core modules
 * Node core modules
 * Kernel file
+
+#### node_modules
+
+[Current version] No option. All modules in `PROJECT_DIRECTORY/node_modules/` will be packed.<br/>
+[Futher version] Or specified in `package.json`.
+
+Code.gs can handle node_modules and module directory. For loading modules inside node_modules directory, no need to code. Both:
+`require('/node_modules/argv')` and `require('argv')` do work.
+
+Currently, there's no way to ignore node_modules. All node_modules folders are packed into output file.
+
+
+#### Core modules
+
+[Current version] PROJECTDIRECTORY/core is default directory. or Any other directory set by option `-c` / `--core'.
+
+Core modules are able to load without directory name such as 'assert', 'http' in Node.js.
+
+Modules in this directory, Code.gs will assume to be core module. These modules will be laid out special path `core/` in output file(ex. `core/assert.js`). Other module can load like berow.
+
+```javascript
+var assert = require('assert');
+```
+
+
 
 
 ## Limitation and Enhancement
