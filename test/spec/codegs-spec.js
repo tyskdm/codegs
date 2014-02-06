@@ -1,16 +1,17 @@
 /*
+    Usage:
+
     var config = {
         rootdir:    process.cwd(),
-
-        mainfile:   argv.targets.length === 0 ? './package.json' :
-                    argv.targets.length === 1 ? argv.targets[0] : null,
-
-        source:     argv.source     || [process.cwd()], // default current directory
+        mainfile:   path to mainfile or package.json
+        source:     argv.source     || [process.cwd()],
         output:     argv.output     || null,
         core:       argv.core       || './core',
         nodecore:   argv.nodecore   || './node_core',
         kernel:     argv.kernel     || null
     };
+
+    Codegs.create(config);
 */
 
 describe("codegs:", function () {
@@ -25,28 +26,6 @@ describe("codegs:", function () {
     describe("'codegs' itself:", function () {
         it("should be constractor.", function () {
             expect(typeof codegs).toBe('function');
-        });
-
-        describe("has Methods and Properties:", function () {
-            it("Method create", function () {
-                expect(typeof codegs.create).toBe('function');
-            });
-            it("Static Method setup", function () {
-                expect(typeof codegs.prototype.setup).toBe('function');
-            });
-            it("Method addSourceFiles", function () {
-                expect(typeof codegs.prototype.addSourceFiles).toBe('function');
-            });
-            it("Method compile", function () {
-                expect(typeof codegs.prototype.compile).toBe('function');
-            });
-            it("Method out", function () {
-                expect(typeof codegs.prototype.out).toBe('function');
-            });
-
-            it("Static Method _parsePackageJson", function () {
-                expect(typeof codegs._parsePackageJson).toBe('function');
-            });
         });
     });
 
@@ -66,40 +45,23 @@ describe("codegs:", function () {
             expect(code.config).toBe(DUMMY_CONFIG);
         });
 
-        it("should set null when argument not exists.", function () {
+        it("should return null when argument not exists.", function () {
             var code = codegs.create();
-            expect(code.config).toBe(null);
+            expect(code.config).toEqual({});
         });
     });
 
 
     /*
      *  Method setup:
-     *  - set config info into codegs object
      *  - find mainfile
-     *  - TODO: should check all options(files and directories)
+     *  - TODO: should check kernel option.
      */
     describe("Method setup:", function () {
         var DUMMY_CONFIG = {
             rootdir:  '/project',
             mainfile: '/project/main.js'
         };
-
-        xit("should store config-info into object", function () {
-            var code = codegs.create();
-            expect(code.config).toBe(null);
-
-            code.setup(DUMMY_CONFIG);
-            expect(code.config).toBe(DUMMY_CONFIG);
-        });
-
-        xit("should not change config when argument not exists.", function () {
-            var code = codegs.create(DUMMY_CONFIG);
-            expect(code.config).toBe(DUMMY_CONFIG);
-
-            code.setup();
-            expect(code.config).toBe(DUMMY_CONFIG);
-        });
 
         describe("should find mainfile:", function () {
             it("case#1 : mainfile exists.", function () {
@@ -170,13 +132,7 @@ describe("codegs:", function () {
     /*
      *  Method addSourceFiles:
      *
-     *  - add source files into two files listObjects, files['js'] and files['json'].
-     *    files['js'] = {
-     *          {realFilePath : codegsFilePath },
-     *          {'~/poject/lib/example.js' : '/lib/example.js' },   // source files
-     *          {'~/poject/core/assert.js' : 'core/assert.js' }     // core modules
-     *      };
-     *
+     *  - add source files into files listObjects.
      *  - serch files in paths configured by config.source.
      *
      *  - There's some of source types.
@@ -269,14 +225,6 @@ describe("codegs:", function () {
                     '/project/core/Buffer.js':      { type: 'file'},
                     '/project/main.js':             { type: 'file'},
                 });
-
-                //var code = codegs.create();
-                //expect(code.setup({
-                //        rootdir:    '/project',
-                //        mainfile:   '/project/main.js',
-                //        core:       '/project/core'
-                //    }, mockfs)).toBeNull();
-
                 var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/main.js',
@@ -302,13 +250,6 @@ describe("codegs:", function () {
                     '/project/node_core/assert.js': { type: 'file'},
                     '/project/main.js':             { type: 'file'},
                 });
-                //var code = codegs.create();
-                //expect(code.setup({
-                //        rootdir:    '/project',
-                //        mainfile:   '/project/main.js',
-                //        node_core:  '/project/node_core'
-                //    }, mockfs)).toBeNull();
-
                 var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/main.js',
@@ -326,21 +267,12 @@ describe("codegs:", function () {
         });
 
         describe("Method addNodeModules:", function () {
-            // TODO: should check the directory exists or not.
-
             it("case#1 : add files in ./node_modules directory.", function () {
                 var mockfs = new MockFs({
                     '/project/node_modules/argv.js':      { type: 'file'},
                     '/project/node_modules/minimatch.js': { type: 'file'},
                     '/project/main.js':                   { type: 'file'},
                 });
-
-                //var code = codegs.create();
-                //expect(code.setup({
-                //        rootdir:    '/project',
-                //        mainfile:   '/project/main.js',
-                //    }, mockfs)).toBeNull();
-
                 var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/main.js',
@@ -366,14 +298,6 @@ describe("codegs:", function () {
                     '/project/lib.js':              { type: 'file'},
                     '/project/index.js':            { type: 'file'},
                 });
-
-                //var code = codegs.create();
-                //expect(code.setup({
-                //        rootdir:    '/project',
-                //        mainfile:   '/project/index.js',
-                //        source:     ['/project'],
-                //    }, mockfs)).toBeNull();
-
                 var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/index.js',
@@ -397,14 +321,6 @@ describe("codegs:", function () {
                     '/project/bin/cli.js':          { type: 'file'},
                     '/project/index.js':            { type: 'file'},
                 });
-
-                //var code = codegs.create();
-                //expect(code.setup({
-                //        rootdir:    '/project',
-                //        mainfile:   '/project/index.js',
-                //        source:     ['/project/lib/', '/project/bin'],
-                //    }, mockfs)).toBeNull();
-
                 var code = codegs.create({
                         rootdir:    '/project',
                         mainfile:   '/project/index.js',

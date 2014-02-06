@@ -123,6 +123,7 @@ Code.gs needs some information to work.
 [Futher version] command line or `package.json`.
 
 Javascript VM load and run this file first. and against GAS specification, this module will be put in global scope.
+It should be relative to the root of project directory.
 
 **memo**<br/>
 GAS entry functions should be defined in global scope with `function` statement.<br/>
