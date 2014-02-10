@@ -1,6 +1,6 @@
 {
   "name": "codegs",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Tool to pack Node.js module files into one source code with module system emulator.",
   "repository": {
     "type": "git",
