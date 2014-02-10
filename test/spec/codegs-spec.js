@@ -214,6 +214,29 @@ describe("codegs:", function () {
                     // empty.
                 });
             });
+
+            it("case#5 : Ignore not .js / .json files.", function () {
+                var mockfs = new MockFs({
+                    '/project/core/a.js':           { type: 'file'},
+                    '/project/core/b.json':         { type: 'file'},
+                    '/project/core/c':              { type: 'file'},
+                    '/project/core/.js':            { type: 'file'},
+                    '/project/core/.json':          { type: 'file'},
+                    '/project/core/lib.js/d.js':    { type: 'file'},
+                    '/project/core/lib.js/e':       { type: 'file'},
+                });
+
+                var list = {};
+                var code = codegs.create();
+                var err = code._addFilesToList(list, '/project/core', 'core/', mockfs);
+
+                expect(err).toBeNull();
+                expect(list).toEqual({
+                    '/project/core/a.js':           { type: 'js',   path: 'core/a.js' },
+                    '/project/core/b.json':         { type: 'json', path: 'core/b.json' },
+                    '/project/core/lib.js/d.js':    { type: 'js',   path: 'core/lib.js/d.js' },
+                });
+           });
         });
 
         describe("Method addCoreFiles:", function () {
