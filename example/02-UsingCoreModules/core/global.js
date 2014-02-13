@@ -10,7 +10,6 @@ if (typeof global !== 'object') {
 
     global.console = require('console');
 
-    // Error.captureStackTrace = function (THIS, stackStartFunction) {};
 }
 
 module.exports = global;
