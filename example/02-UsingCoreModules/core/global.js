@@ -1,5 +1,5 @@
 
-if (typeof global !== 'object') {
+if (typeof global === 'undefined') {
     (function () {
         this.global = this;
     })();

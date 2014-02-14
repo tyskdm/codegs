@@ -1,38 +1,49 @@
-#Code.gs Examples
+# Code.gs Examples
 
-##02-UsingNodeCoreModules
+## 02-UsingCoreModules
+
+This example include some core modules. node_core modules are from Node.js project. core modules are written for GAS environment instead of original Node.js modules.
 
 Node core modules:
-util / assert / console
+- util / assert / console
+- These are copy of Node.js 0.10.24 original modules.
 
-Fake modules:
-process / buffer
+Core modules:
+- process / buffer
+- `process` is partial(minimum) implementation. `buffer` is only dummy constractor.
 
+In this example, main.js will set up global objects(same as Node.js), load `assert` module, and store result of assertion into Logger using cosole.log().
 
-###Usage
+### Usage
 
-Come to this directory and try:
+Come to this directory and type:
 
-1) node lib/main.js
+```shell
+code src/main.js -o out.js
+```
 
-- You see result of `lib.sum(3, 4);`
-
-2) code lib/main.js -o out.js
-
-- code create out.js including main.js, lib.js and module emulator.
+- `code` will create out.js including main.js, core/node_core modules and module emulator.
 
 - Create a new Google Apps Script project in your Google drive.
 - Copy content of out.js to Code.gs file in your project.
-- Run or Debug function 'require'
+- Run function 'require'. (Debug mode execution does not work. It may be GAS Limitation.)
 
 - View Logs(Ctrl+Enter).
-- You see result of `lib.sum(3, 4);`
+- You see result of assertion.
 
-###How this works
+### How this works
 
-This program calculate sum and print result throw 'Logger.log'. Logger is native object on Google Apps Script and not exists in Node.js environment.
+In main.js, module `global` is loaded. It loads some modules into global space. Those are needed by Node.js core modules.
 
-When run main.js in your local PC, Node.js try to search 'Logger' module in node_modules folder and find and load it from ./example/node_modules.
+After that, load `assert` module which use global object `console`, node core module `util`.
 
-When run main.js in GAS environment, Codegs kernel search 'Logger' module in global objects or node_modules. Codegs find it in global, and return that.
-Codegs command line tool does not merge Logger.js module, because it's plased outside project directory.
+Then, assert and log results.
+
+**note**<br/>
+This program is NOT possible to execute with debug mode in GAS.
+
+`assert` module define new Error class and throw when assertion fails. GAS debugger will stop that timing and say:
+```
+TypeError: This operation is not allowed.
+```
+I'm not sure but GAS can not allow original type of Error. So this program is only for Run mode.
