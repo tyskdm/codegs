@@ -3,11 +3,8 @@
 A tool to pack Node.js module files and module system emulator within one source file.
 That source file can run on [Google Apps Script](https://developers.google.com/apps-script/) environment or perhaps other Javascript engines.
 
-#### v0.0.6
-* Work with not only Linux, and also with windows('\' path delimiter).
-* Add simple example. It runs on Node.js and also Google Apps Script. (See 'example/01-Simple')
-* based on Node.js version 0.10.24
-
+#### v0.0.7
+* Add a example. It includes Node.js original core modules, `assert`, `util`, `console`.
 
 ## First example
 
