@@ -1,10 +1,10 @@
-#Code.gs Examples
+# Code.gs Examples
 
-##01-Simple
+## 01-Simple
 
 Simple example. This project is executable on Node.js and also Google Apps Script.
 
-###Usage
+### Usage
 
 Come to this directory and try:
 
@@ -23,7 +23,7 @@ Come to this directory and try:
 - View Logs(Ctrl+Enter).
 - You see result of `lib.sum(3, 4);`
 
-###How this works
+### How this works
 
 This program calculate sum and print result throw 'Logger.log'. Logger is native object on Google Apps Script and not exists in Node.js environment.
 
