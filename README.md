@@ -1,7 +1,7 @@
 # Code.gs
 
 A tool to pack Node.js module files and module system emulator within one source file.
-That source file can run on [Google Apps Script](https://developers.google.com/apps-script/) environment or perhaps other Javascript engines.
+That source file is executable on [Google Apps Script](https://developers.google.com/apps-script/) environment( or perhaps other Javascript engines).
 
 #### v0.0.7
 * Add a example. It includes Node.js original core modules, `assert`, `util`, `console`.
@@ -42,22 +42,16 @@ and you see merged source code:
 
 ```shell
 $ code main.js
-// lib.js
-// line: 3
 require('module').define('/main.js',
-function() {
+function(exports, require, module, \__filename, \__dirname) {
 module.exports.sum = function (a, b) {
     return a + b;
 };
 });
-// main.js
-// line: 2
 require('module').runmain('/main.js');
 var lib = require('./lib);
 console.log('3 + 4 = ' + lib.sum(3, 4));
 require('module').endmain('/main.js');
-// module.js
-// line: 336
 function require(path) {
     require = (function () {
             :
