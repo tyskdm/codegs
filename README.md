@@ -134,7 +134,7 @@ GAS entry functions should be defined in global scope with `function` statement.
 [Current version] Command line option `-s`/`--source` or project directory.<br/>
 [Futher version] Or specified in `package.json`.
 
-- One or more files/directories are able to set. Those files should be under he project directory.
+- One or more files/directories are able to set. Those files should be under the project directory.
 - If not set by commandline option, Code.gs use project directory as source directory.
 
 
