@@ -5,7 +5,7 @@ describe("Module:", function () {
 
     beforeEach(function () {
         Module = require('../../lib/module.js');
-        Module.__reset__();
+        Module._init();
     });
 
     describe("'Module' itself:", function () {
@@ -102,7 +102,7 @@ describe("Module:", function () {
                     id:         '.',
                     exports:    {},
                     parent:     null,
-                    filename:   null,
+                    filename:   '/.',
                     loaded:     false,
                     children:   [],
                     require:    Module.prototype.require,
@@ -533,8 +533,8 @@ describe("Module:", function () {
 
     describe("Method require - called inside module:", function () {
 
-        var PARENT_FILENAME = './REQUIRE_FUNCTION.js';
-        var TARGET_FILENAME = './REQUIRED_MODULE.js';
+        var PARENT_FILENAME = '/REQUIRE_FUNCTION.js';
+        var TARGET_FILENAME = '/REQUIRED_MODULE.js';
         var parent, target;
 
         beforeEach(function () {
@@ -557,7 +557,7 @@ describe("Module:", function () {
             target = parent.require(TARGET_FILENAME).module;
         });
 
-        describe("has has Methods and Properties:", function () {
+        describe("has Methods and Properties:", function () {
             it("id", function () {
                 expect(target.id).toBe(TARGET_FILENAME);
             });
