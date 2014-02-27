@@ -11,6 +11,10 @@
     "email": "tsuyoshi.kodama@gmail.com"
   },
   "license": "MIT",
+  "keywords": [
+    "gas",
+    "GooglsAppsScript"
+  ],
   "main": "./lib/module.js",
   "bin": {
     "code": "./bin/code"
