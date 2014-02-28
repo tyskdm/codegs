@@ -3,8 +3,9 @@
 A tool to pack Node.js module files and module system emulator within one source file.
 That source file is executable on [Google Apps Script](https://developers.google.com/apps-script/) environment( or perhaps other Javascript engines).
 
-#### v0.0.7
-* Add a example. It includes Node.js original core modules, `assert`, `util`, `console`.
+#### v0.0.8
+* After startup and Before calling runmain, 'require' method assumes that self filename is '/.'.
+* Add ['codegs-core'](https://www.npmjs.org/package/codegs-core) module to npm as another package. That includes some code　core modules for GAS, and some Node.js core modules.(No change in this package)
 
 ## First example
 
