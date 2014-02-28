@@ -528,12 +528,26 @@ describe("Module:", function () {
     });
 
     describe("method require - called in mainModule(Outside module):", function () {
-        // Currentry, no test item.
+
+        var require;
+        beforeEach(function () {
+            require = Module._require; // require outside modules.
+        })
+
+        describe("has properties and methods:", function () {
+            it("Method resolve", function () {
+                expect(typeof require.resolve).toBe('function');
+            });
+
+            it("Property cache", function () {
+                expect(typeof require.cache).toBe('object');
+            });
+        });
     });
 
     describe("Method require - called inside module:", function () {
 
-        var PARENT_FILENAME = '/REQUIRE_FUNCTION.js';
+        var PARENT_FILENAME = '/REQUIRE_FROM.js';
         var TARGET_FILENAME = '/REQUIRED_MODULE.js';
         var parent, target;
 
@@ -557,7 +571,7 @@ describe("Module:", function () {
             target = parent.require(TARGET_FILENAME).module;
         });
 
-        describe("has Methods and Properties:", function () {
+        describe("should returns inside module:", function () {
             it("id", function () {
                 expect(target.id).toBe(TARGET_FILENAME);
             });
@@ -569,6 +583,7 @@ describe("Module:", function () {
             });
             it("filename", function () {
                 expect(target.filename).toBe(TARGET_FILENAME);
+                expect(target.exports.filename).toBe(TARGET_FILENAME);
             });
             it("loaded", function () {
                 expect(target.loaded).toBe(true);
@@ -577,8 +592,9 @@ describe("Module:", function () {
                 expect(typeof target.children.length).toBe('number');
                 expect(target.children.length).toBe(0);
             });
-            describe("require", function () {
-                it("require", function () {
+
+            describe("Method require:", function () {
+                it("require should be function.", function () {
                     expect(typeof target.require).toBe('function');
                 });
 
@@ -597,6 +613,18 @@ describe("Module:", function () {
                 it("should return null when called with argument = undefined", function () {
                     expect(target.require(undefined)).toBeNull();
                     expect(target.require()).toBeNull();
+                });
+
+                describe("has properties and methods:", function () {
+                    it("Method resolve", function () {
+                        expect(typeof target.exports.require.resolve).toBe('function');
+                        expect(typeof target.require.resolve).toBe('undefined');
+                    });
+
+                    it("Property cache", function () {
+                        expect(typeof target.exports.require.cache).toBe('object');
+                        expect(typeof target.require.cache).toBe('undefined');
+                    });
                 });
             });
         });
