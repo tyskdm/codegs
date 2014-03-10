@@ -16,6 +16,7 @@
 
 describe("codegs:", function () {
 
+    var path =   require('path');
     var codegs = require('../../lib/codegs.js');
     var MockFs = require('../mock/mockfs.js');
 
@@ -29,28 +30,46 @@ describe("codegs:", function () {
         });
     });
 
-
     describe("Method create:", function () {
-        var DUMMY_CONFIG = {
-            rootdir:  '/project',
-            mainfile: '/project/main.js'
-        };
+        var DEFAULT_CONFIG = {
+                rootdir:   null,
+                mainfile:  null,
+
+                source:    [],
+                output:    null,
+                core:      null,
+                node_core: null,
+                kernel:    null
+            },
+            DUMMY_CONFIG = {
+                rootdir:  '/project',
+                mainfile: '/project/main.js'
+            },
+            ADDED_CONFIG = {
+                rootdir:  '/project',
+                mainfile: '/project/main.js',
+
+                source:    [],
+                output:    null,
+                core:      null,
+                node_core: null,
+                kernel:    null
+            };
 
         it("creates new codegs object.", function () {
             expect(codegs.create() instanceof codegs).toBe(true);
         });
 
+        it("should return default values when argument not exists.", function () {
+            var code = codegs.create();
+            expect(code.config).toEqual(DEFAULT_CONFIG);
+        });
+
         it("should set config-info into object", function () {
             var code = codegs.create(DUMMY_CONFIG);
-            expect(code.config).toBe(DUMMY_CONFIG);
-        });
-
-        it("should return null when argument not exists.", function () {
-            var code = codegs.create();
-            expect(code.config).toEqual({});
+            expect(code.config).toEqual(ADDED_CONFIG);
         });
     });
-
 
     /*
      *  Method setup:
@@ -62,6 +81,196 @@ describe("codegs:", function () {
             rootdir:  '/project',
             mainfile: '/project/main.js'
         };
+
+        describe("should set default config values:", function () {
+            it("rootdir = process.cwd.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                });
+
+                var code = codegs.create();
+                expect(code.config.rootdir).toBe(null);
+
+                var error = code.setup(mockfs);
+                expect(code.config.rootdir).toBe(process.cwd());
+            });
+
+            it("mainfile = process.cwd.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                });
+
+                var code = codegs.create();
+                expect(code.config.mainfile).toBe(null);
+
+                var error = code.setup(mockfs);
+                expect(code.config.mainfile).toBe(process.cwd());
+            });
+        });
+
+        describe("should check code_core directory:", function () {
+            it("case#1 : core_dir not specified.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                });
+
+                var code = codegs.create({
+                        rootdir:    '/home/usr/project',
+                        mainfile:   '/home/usr/project/main.js',
+                    });
+                expect(code.config.core).toBe(null);
+
+                var error = code.setup(mockfs);
+                expect(error).toBe(null);
+                expect(code.config.core).toBe('/home/usr/project/core');
+            });
+
+            it("case#2 : core_dir exists.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                    '/home/usr/project/core' :          { type: 'dir'},
+                });
+
+                var code = codegs.create({
+                        rootdir:    '/home/usr/project',
+                        mainfile:   '/home/usr/project/main.js',
+                    });
+                expect(code.config.core).toBe(null);
+
+                code.addConfig({ core: './core' });
+                expect(code.config.core).toBe('./core');
+
+                var error = code.setup(mockfs);
+                expect(error).toBe(null);
+                expect(code.config.core).toBe('/home/usr/project/core');
+            });
+
+            it("case#3 : core_dir NOT exists.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                });
+
+                var code = codegs.create({
+                        rootdir:    '/home/usr/project',
+                        mainfile:   '/home/usr/project/main.js',
+                    });
+                expect(code.config.core).toBe(null);
+
+                code.addConfig({ core: './core' });
+                expect(code.config.core).toBe('./core');
+
+                var error = code.setup(mockfs);
+                expect(error).toBe('Error: core module directory is not existent.');
+                expect(code.config.core).toBe('/home/usr/project/core');
+            });
+
+            it("case#4 : core_dir is not a directory.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                    '/home/usr/project/core' :          { type: 'file'},
+                });
+
+                var code = codegs.create({
+                        rootdir:    '/home/usr/project',
+                        mainfile:   '/home/usr/project/main.js',
+                    });
+                expect(code.config.core).toBe(null);
+
+                code.addConfig({ core: './core' });
+                expect(code.config.core).toBe('./core');
+
+                var error = code.setup(mockfs);
+                expect(error).toBe('Error: core module directory is not directory.');
+                expect(code.config.core).toBe('/home/usr/project/core');
+            });
+        });
+
+        describe("should check node_core directory:", function () {
+            it("case#1 : node_core_dir not specified.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                });
+
+                var code = codegs.create({
+                        rootdir:    '/home/usr/project',
+                        mainfile:   '/home/usr/project/main.js',
+                    });
+                expect(code.config.node_core).toBe(null);
+
+                var error = code.setup(mockfs);
+                expect(error).toBe(null);
+                expect(code.config.node_core).toBe('/home/usr/project/node_core');
+            });
+
+            it("case#2 : node_core_dir exists.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                    '/home/usr/project/node_core' :     { type: 'dir'},
+                });
+
+                var code = codegs.create({
+                        rootdir:    '/home/usr/project',
+                        mainfile:   '/home/usr/project/main.js',
+                    });
+                expect(code.config.node_core).toBe(null);
+
+                code.addConfig({ node_core: './node_core' });
+                expect(code.config.node_core).toBe('./node_core');
+
+                var error = code.setup(mockfs);
+                expect(error).toBe(null);
+                expect(code.config.node_core).toBe('/home/usr/project/node_core');
+            });
+
+            it("case#3 : node_core_dir NOT exists.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                });
+
+                var code = codegs.create({
+                        rootdir:    '/home/usr/project',
+                        mainfile:   '/home/usr/project/main.js',
+                    });
+                expect(code.config.node_core).toBe(null);
+
+                code.addConfig({ node_core: './node_core' });
+                expect(code.config.node_core).toBe('./node_core');
+
+                var error = code.setup(mockfs);
+                expect(error).toBe('Error: node_core module directory is not existent.');
+                expect(code.config.node_core).toBe('/home/usr/project/node_core');
+            });
+
+            it("case#4 : node_core_dir is not a directory.", function () {
+                var mockfs = new MockFs({
+                    '/home/usr/project' :               { type: 'dir' },
+                    '/home/usr/project/main.js' :       { type: 'file'},
+                    '/home/usr/project/node_core' :     { type: 'file'},
+                });
+
+                var code = codegs.create({
+                        rootdir:    '/home/usr/project',
+                        mainfile:   '/home/usr/project/main.js',
+                    });
+                expect(code.config.node_core).toBe(null);
+
+                code.addConfig({ node_core: './node_core' });
+                expect(code.config.node_core).toBe('./node_core');
+
+                var error = code.setup(mockfs);
+                expect(error).toBe('Error: node_core module directory is not directory.');
+                expect(code.config.node_core).toBe('/home/usr/project/node_core');
+            });
+        });
 
         describe("should find mainfile:", function () {
             it("case#1 : mainfile exists.", function () {
@@ -240,8 +449,6 @@ describe("codegs:", function () {
         });
 
         describe("Method addCoreFiles:", function () {
-            // TODO: should check the directory exists or not.
-
             it("case#1 : add files in ./core directory.", function () {
                 var mockfs = new MockFs({
                     '/project/core/process.js':     { type: 'file'},
@@ -265,8 +472,6 @@ describe("codegs:", function () {
         });
 
         describe("Method addNodeCoreFiles:", function () {
-            // TODO: should check the directory exists or not.
-
             it("case#1 : add files in ./node_core directory.", function () {
                 var mockfs = new MockFs({
                     '/project/node_core/util.js':   { type: 'file'},
