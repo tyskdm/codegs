@@ -32,28 +32,29 @@ describe("codegs:", function () {
 
     describe("Method create:", function () {
         var DEFAULT_CONFIG = {
-                rootdir:   null,
-                mainfile:  null,
-
-                source:    [],
-                output:    null,
-                core:      null,
-                node_core: null,
-                kernel:    null
+                rootdir:      null,
+                mainfile:     null,
+                source:       null,
+                output:       null,
+                core:         null,
+                node_core:    null,
+                node_modules: null,
+                kernel:       null
             },
             DUMMY_CONFIG = {
-                rootdir:  '/project',
-                mainfile: '/project/main.js'
+                rootdir:      '/project',
+                mainfile:     '/project/main.js'
             },
             ADDED_CONFIG = {
-                rootdir:  '/project',
-                mainfile: '/project/main.js',
+                rootdir:      '/project',
+                mainfile:     '/project/main.js',
 
-                source:    [],
-                output:    null,
-                core:      null,
-                node_core: null,
-                kernel:    null
+                source:       null,
+                output:       null,
+                core:         null,
+                node_core:    null,
+                node_modules: null,
+                kernel:       null
             };
 
         it("creates new codegs object.", function () {
@@ -502,9 +503,9 @@ describe("codegs:", function () {
                     '/project/main.js':                   { type: 'file'},
                 });
                 var code = codegs.create({
-                        rootdir:    '/project',
-                        mainfile:   '/project/main.js',
-                    });
+                    rootdir:    '/project',
+                    mainfile:   '/project/main.js',
+                });
                 expect(code.setup(mockfs)).toBeNull();
 
                 var err = code.addNodeModules(mockfs);
@@ -512,6 +513,32 @@ describe("codegs:", function () {
                 expect(code.files.node_modules).toEqual({
                     '/project/node_modules/argv.js':      { type: 'js', path: '/node_modules/argv.js' },
                     '/project/node_modules/minimatch.js': { type: 'js', path: '/node_modules/minimatch.js' },
+                });
+            });
+
+            it("case#2 : add only specified files.", function () {
+                var mockfs = new MockFs({
+                    '/project/node_modules/argv.js':                { type: 'file'},
+                    '/project/node_modules/commander':              { type: 'file'},
+                    '/project/node_modules/minimatch.js':           { type: 'file'},
+                    '/project/node_modules/folderModule/main.js':   { type: 'file'},
+                    '/project/main.js':                             { type: 'file'},
+                });
+                var code = codegs.create({
+                    rootdir:        '/project',
+                    mainfile:       '/project/main.js',
+                    node_modules:   [ 'argv', 'commander', 'folderModule' ]
+                });
+                expect(code.setup(mockfs)).toBeNull();
+
+                var err = code.addNodeModules(mockfs);
+                expect(err).toBeNull();
+                expect(code.files.node_modules).toEqual({
+                    // '/project/node_modules/argv.js':                { type: 'js', path: '/node_modules/argv.js' },
+                    // Currentry, It's necessary that specify full name with filename extension.
+
+                    '/project/node_modules/commander':              { type: 'js', path: '/node_modules/commander' },
+                    '/project/node_modules/folderModule/main.js':   { type: 'js', path: '/node_modules/folderModule/main.js' },
                 });
             });
         });
@@ -562,6 +589,48 @@ describe("codegs:", function () {
                     '/project/bin/cli.js':          { type: 'js', path: '/bin/cli.js' },
                     '/project/lib/module.js':       { type: 'js', path: '/lib/module.js' },
                 });
+            });
+
+            it("case#3 : Sourcefile not specified.", function () {
+                var mockfs = new MockFs({
+                    '/project/modules/tool.js':     { type: 'file'},
+                    '/project/modules/util.js':     { type: 'file'},
+                    '/project/lib.js':              { type: 'file'},
+                    '/project/index.js':            { type: 'file'},
+                });
+                var code = codegs.create({
+                        rootdir:    '/project',
+                        mainfile:   '/project/index.js',
+                        // NOT SPECIFIED : source:     ['/project'],
+                    });
+                expect(code.setup(mockfs)).toBeNull();
+
+                var err = code.addSourceFiles(mockfs);
+                expect(err).toBeNull();
+                expect(code.files.source).toEqual({
+                    '/project/modules/tool.js':     { type: 'js', path: '/modules/tool.js' },
+                    '/project/modules/util.js':     { type: 'js', path: '/modules/util.js' },
+                    '/project/lib.js':              { type: 'js', path: '/lib.js' },
+                });
+            });
+
+            it("case#4 : Specify sourcefiles list as empty.", function () {
+                var mockfs = new MockFs({
+                    '/project/modules/tool.js':     { type: 'file'},
+                    '/project/modules/util.js':     { type: 'file'},
+                    '/project/lib.js':              { type: 'file'},
+                    '/project/index.js':            { type: 'file'},
+                });
+                var code = codegs.create({
+                        rootdir:    '/project',
+                        mainfile:   '/project/index.js',
+                        source:     [ /* EMPTY */ ]
+                    });
+                expect(code.setup(mockfs)).toBeNull();
+
+                var err = code.addSourceFiles(mockfs);
+                expect(err).toBeNull();
+                expect(code.files.source).toEqual({ /* EMPTY */ });
             });
         });
 
