@@ -305,7 +305,7 @@ describe("codegs:", function () {
                 expect(code.files.main).toBe(null);
             });
 
-            it("case#3 : mainfile is directory and it's empty.", function () {
+            it("case#3 : mainfile is directory.", function () {
                 var mockfs = new MockFs({
                     '/home/usr/project' :               { type: 'dir' },
                     '/home/usr/project/main.js' :       { type: 'dir' },
@@ -317,7 +317,7 @@ describe("codegs:", function () {
                     });
                 var error = code.setup(mockfs);
 
-                expect(error).toBe('Error: main file is not found.');
+                expect(error).toBe('Error: main file is not valid filetype.');
                 expect(code.files.main).toBe(null);
             });
 
@@ -367,7 +367,7 @@ describe("codegs:", function () {
 
                 var list = {};
                 var code = codegs.create();
-                var err = code._addFilesToList(list, '/project/core', 'core/', mockfs);
+                var err = code._addFilesToList(list, '/project/core', 'core/', false, mockfs);
 
                 expect(err).toBeNull();
                 expect(list).toEqual({
@@ -383,7 +383,7 @@ describe("codegs:", function () {
 
                 var list = {};
                 var code = codegs.create();
-                var err = code._addFilesToList(list, '/project/core', 'core/', mockfs);
+                var err = code._addFilesToList(list, '/project/core', 'core/', false, mockfs);
 
                 expect(err).toBeNull();
                 expect(list).toEqual({
@@ -400,7 +400,7 @@ describe("codegs:", function () {
 
                 var list = {};
                 var code = codegs.create();
-                var err = code._addFilesToList(list, '/project/core', 'core/', mockfs);
+                var err = code._addFilesToList(list, '/project/core', 'core/', false, mockfs);
 
                 expect(err).toBeNull();
                 expect(list).toEqual({
@@ -417,7 +417,7 @@ describe("codegs:", function () {
 
                 var list = {};
                 var code = codegs.create();
-                var err = code._addFilesToList(list, '/project/core', 'core/', mockfs);
+                var err = code._addFilesToList(list, '/project/core', 'core/', false, mockfs);
 
                 expect(err).toBeNull();
                 expect(list).toEqual({
@@ -438,7 +438,7 @@ describe("codegs:", function () {
 
                 var list = {};
                 var code = codegs.create();
-                var err = code._addFilesToList(list, '/project/core', 'core/', mockfs);
+                var err = code._addFilesToList(list, '/project/core', 'core/', false, mockfs);
 
                 expect(err).toBeNull();
                 expect(list).toEqual({
@@ -634,15 +634,27 @@ describe("codegs:", function () {
             });
         });
 
+        describe("Private Method _addIgnoreFilepath:", function () {
+
+            it("add ignore filepath into codegs object.", function () {
+                var code = codegs.create();
+                expect(code.ignoreFilepath).toEqual([]);
+
+                code._addIgnoreFilepath('/main.js');
+
+                expect(code.ignoreFilepath).toEqual(['/main.js']);
+            });
+        });
+
         describe("Private Method _addIgnorePattern:", function () {
 
             it("add ignore pattern into codegs object.", function () {
                 var code = codegs.create();
-                expect(code.ignore).toEqual([]);
+                expect(code.ignorePattern).toEqual([]);
 
                 code._addIgnorePattern('.*');
 
-                expect(code.ignore).toEqual(['.*']);
+                expect(code.ignorePattern).toEqual(['.*']);
             });
         });
 
@@ -650,18 +662,28 @@ describe("codegs:", function () {
 
             it("case#1 : should return true when match ignore pattern.", function () {
                 var code = codegs.create();
-                expect(code.ignore).toEqual([]);
+                expect(code.ignorePattern).toEqual([]);
 
-                code._addIgnorePattern('*.js');
-                expect(code._isIgnoreFile('main.js')).toBe(true);
+                code._addIgnorePattern('**/*.js');
+                expect(code._isIgnoreFile('/main.js', true)).toBe(true);
+                expect(code._isIgnoreFile('/project/lib/main.js', true)).toBe(true);
             });
 
             it("case#2 : should return false when unmatch ignore pattern.", function () {
                 var code = codegs.create();
-                expect(code.ignore).toEqual([]);
+                expect(code.ignorePattern).toEqual([]);
 
-                code._addIgnorePattern('*.js');
-                expect(code._isIgnoreFile('main.json')).toBe(false);
+                code._addIgnorePattern('**/*.js');
+                expect(code._isIgnoreFile('/project.js/main.json', true)).toBe(false);
+            });
+
+            it("case#3 : should return false when checkPattern flag is not set.", function () {
+                var code = codegs.create();
+                expect(code.ignorePattern).toEqual([]);
+
+                code._addIgnorePattern('**/*.js');
+                expect(code._isIgnoreFile('/main.js')).toBe(false);
+                expect(code._isIgnoreFile('/project/lib/main.js')).toBe(false);
             });
         });
     });
