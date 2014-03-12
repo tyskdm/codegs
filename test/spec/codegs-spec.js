@@ -72,6 +72,121 @@ describe("codegs:", function () {
         });
     });
 
+    describe("Method loadPackageJson:", function () {
+
+        it("should return Error when package.json is not found.", function () {
+            var mockfs = new MockFs({
+                '/project/lib/main.js' :        { type: 'file' }
+            });
+
+            var code = codegs.create();
+            var error = code.loadPackageJson('/project/package.json', mockfs);
+            expect(error).toBe('Error: package.json is not found.');
+        });
+
+        describe("should call addConfig to set config with package info:", function () {
+            it("case#1 package.json is empty.", function () {
+                var mockfs = new MockFs({
+                    '/project/package.json' :       { type: 'file' }
+                });
+
+                var code = codegs.create();
+                spyOn(code, '_require').andReturn({ /* EMPTY */ });
+                spyOn(code, 'addConfig').andReturn(null);
+
+                var error = code.loadPackageJson('/project/package.json', mockfs);
+                expect(error).toBeNull();
+
+                expect(code._require.calls.length).toEqual(1);
+                expect(code.addConfig.calls.length).toEqual(1);
+
+                expect(code.addConfig).toHaveBeenCalledWith({
+                    rootdir:      '/project',
+                    mainfile:     null,
+                    node_modules: []
+                });
+            });
+
+            it("case#2 package.json has properties.", function () {
+                var mockfs = new MockFs({
+                    '/project/package.json' :       { type: 'file' }
+                });
+
+                var code = codegs.create();
+                spyOn(code, '_require').andReturn({
+                    main:         './lib/main.js',
+                    dependencies: {
+                        argv: '~v0.0.0',
+                        mods: 'v1.0.0'
+                    }
+                });
+                spyOn(code, 'addConfig').andReturn(null);
+
+                var error = code.loadPackageJson('/project/package.json', mockfs);
+                expect(error).toBeNull();
+
+                expect(code._require.calls.length).toEqual(1);
+                expect(code.addConfig.calls.length).toEqual(1);
+
+                expect(code.addConfig).toHaveBeenCalledWith({
+                    rootdir:      '/project',
+                    mainfile:     './lib/main.js',
+                    node_modules: [ 'argv', 'mods' ]
+                });
+            });
+
+            it("case#3 package.json has props and empty files list.", function () {
+                var mockfs = new MockFs({
+                    '/project/package.json' :       { type: 'file' }
+                });
+
+                var code = codegs.create();
+                spyOn(code, '_require').andReturn({
+                    files: []
+                });
+                spyOn(code, 'addConfig').andReturn(null);
+
+                var error = code.loadPackageJson('/project/package.json', mockfs);
+                expect(error).toBeNull();
+
+                expect(code._require.calls.length).toEqual(1);
+                expect(code.addConfig.calls.length).toEqual(1);
+
+                expect(code.addConfig).toHaveBeenCalledWith({
+                    rootdir:      '/project',
+                    mainfile:     null,
+                    node_modules: [],
+                    source:       []
+                });
+            });
+
+            it("case#4 package.json has props and files list containing some.", function () {
+                var mockfs = new MockFs({
+                    '/project/package.json' :       { type: 'file' }
+                });
+
+                var code = codegs.create();
+                spyOn(code, '_require').andReturn({
+                    files: [ 'lib', './src' ]
+                });
+                spyOn(code, 'addConfig').andReturn(null);
+
+                var error = code.loadPackageJson('/project/package.json', mockfs);
+                expect(error).toBeNull();
+
+                expect(code._require.calls.length).toEqual(1);
+                expect(code.addConfig.calls.length).toEqual(1);
+
+                expect(code.addConfig).toHaveBeenCalledWith({
+                    rootdir:      '/project',
+                    mainfile:     null,
+                    node_modules: [],
+                    source:       [ '/project/lib', '/project/src' ]
+                });
+            });
+        });
+    });
+
     /*
      *  Method setup:
      *  - find mainfile
