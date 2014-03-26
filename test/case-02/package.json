@@ -1,0 +1,16 @@
+{
+  "name": "case-02",
+  "version": "0.0.0",
+  "main": "./lib/main.js",
+  "files": [ "lib" ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "codegs-core": "0.0.2"
+  },
+  "_codegs": {
+    "core": "node_modules/codegs-core/code/gas",
+    "node_core": "node_modules/codegs-core/node/v0.10.26"
+  }
+}
