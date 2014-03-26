@@ -38,12 +38,3 @@ In main.js, module `global` is loaded. It loads some modules into global space. 
 After that, load `assert` module which use global object `console`, node core module `util`.
 
 Then, assert and log results.
-
-**note**<br/>
-This program is NOT possible to execute with debug mode in GAS.
-
-`assert` module define new Error class and throw when assertion fails. GAS debugger will stop that timing and say:
-```
-TypeError: This operation is not allowed.
-```
-I'm not sure but GAS can not allow original type of Error. So this program is only for Run mode.

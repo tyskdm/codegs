@@ -3,8 +3,9 @@
 A tool to pack Node.js module files and module system emulator within one source file.
 That source file is executable on [Google Apps Script](https://developers.google.com/apps-script/) environment( or perhaps other Javascript engines).
 
-#### v0.0.9
-* Handling package.json and .npmignore which codegs gets config values from.
+#### v0.1.0
+- get more option values from package.json:_codegs object.
+- assume to be package.json when MAINFILE type is `.json`.
 
 #### Related package
 * ['codegs-core'](https://www.npmjs.org/package/codegs-core) includes some code　core modules for GAS, and some Node.js core modules.
@@ -67,6 +68,17 @@ $ code main.js > out.js
 $ node out.js
 7
 ```
+
+And `out.js` is executable on GoogleAppsScript environment.
+
+1. Create new GoogleAppsScript project and import ['gas-console'](https://www.npmjs.org/package/gas-console).
+
+2. Paste out.js into `code.gs` file.
+
+3. On menu bar, select `require` as execute function.
+
+4. Run or Debug
+
 
 That's how Code.gs works.
 
