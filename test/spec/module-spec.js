@@ -112,8 +112,10 @@ describe("Module:", function () {
         });
 
         describe("Method runMain:", function () {
+            var TEST_FILENAME = 'TEST_FILENAME';
+
             beforeEach(function () {
-                Module.runMain('TEST_FILENAME');
+                Module.runMain(TEST_FILENAME);
             });
 
             it("should updated _mainModule.", function () {
@@ -121,7 +123,7 @@ describe("Module:", function () {
                     id:         '.',
                     exports:    {},
                     parent:     null,
-                    filename:   'TEST_FILENAME',
+                    filename:   TEST_FILENAME,
                     loaded:     false,
                     children:   [],
                     require:    Module.prototype.require,
@@ -130,7 +132,7 @@ describe("Module:", function () {
             });
 
             it("let _mainModule cached into Module._cache.", function () {
-                expect(Module._cache['TEST_FILENAME']).toBe(target);
+                expect(Module._cache[TEST_FILENAME]).toBe(target);
             });
         });
 
@@ -173,13 +175,15 @@ describe("Module:", function () {
     });
 
     describe("Method define:", function () {
+        var TEST_FILENAME = 'DEFINE_TEST';
+
         it("should set module code to module._files[].", function () {
-            expect(Module._files['DEFINE_TEST']).toBeUndefined;
+            expect(Module._files[TEST_FILENAME]).toBeUndefined();
 
-            var func = function() { ; };
-            Module.define('DEFINE_TEST', func);
+            var func = function() { };
+            Module.define(TEST_FILENAME, func);
 
-            expect(Module._files['DEFINE_TEST']).toBe(func);
+            expect(Module._files[TEST_FILENAME]).toBe(func);
         });
     });
 
@@ -477,7 +481,7 @@ describe("Module:", function () {
             [ { filename: '/path/to/file.js'},  '../lib(16)/main.js',      '/path/lib(16)/main.js'],
             [ { filename: '/path/to/file.js'},  '../lib(16)/package.json', '/path/lib(16)/package.json'],
             [ { filename: '/path/to/file.js'},  '../lib(16)',              '/path/lib(16)/main.js'],
-            [ { filename: '/path/to/file.js'},  '../lib(16)/',             '/path/lib(16)/main.js'],
+            [ { filename: '/path/to/file.js'},  '../lib(16)/',             '/path/lib(16)/main.js']
         ];
 
         it("should return PATH_DATA[i]", function () {
@@ -485,8 +489,8 @@ describe("Module:", function () {
                 Module.define(PATH_DATA[i][2], { main: './main.js' });
             }
 
-            for (var i = 0; i < PATH_DATA.length; i++) {
-                expect(Module._resolveFilename(PATH_DATA[i][1], PATH_DATA[i][0])).toBe(PATH_DATA[i][2]);
+            for (var j = 0; j < PATH_DATA.length; j++) {
+                expect(Module._resolveFilename(PATH_DATA[j][1], PATH_DATA[j][0])).toBe(PATH_DATA[j][2]);
             }
         });
     });
@@ -523,7 +527,7 @@ describe("Module:", function () {
                     load:               function (filename) { module.exports = 'OK'; },
 
                     result:             {}
-                },
+                }
             ];
     });
 
@@ -532,7 +536,7 @@ describe("Module:", function () {
         var require;
         beforeEach(function () {
             require = Module._require; // require outside modules.
-        })
+        });
 
         describe("has properties and methods:", function () {
             it("Method resolve", function () {
