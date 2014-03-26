@@ -831,6 +831,22 @@ describe("codegs:", function () {
                 expect(content).not.toBe('');
             });
 
+            it("should remove shebang from file content.", function () {
+                var mockfs = new MockFs({
+                    '/project/bin/cli.js':           { type: 'file', content: "#! /usr/bin/env node\nrequire('../lib/codegs')();\n" }
+                });
+                var filesList = {
+                    '/project/bin/cli.js':           { type: 'js',   path: '/bin/cli.js' }
+                };
+
+                var content = codegs._compileFilesList(filesList, mockfs);
+                expect(typeof content).toBe('string');
+                expect(content).toBe("require('module').define('/bin/cli.js',\n" +
+                                     "function (exports, require, module, __filename, __dirname) {\n" +
+                                     "\nrequire('../lib/codegs')();\n" +
+                                     "\n});\n");
+            });
+
             it("should return null when filetype is invalid.", function () {
                 var mockfs = new MockFs({
                     '/project/core/module.js':       { type: 'file', content: '// ## module.js ##\n' }
