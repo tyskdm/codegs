@@ -481,7 +481,10 @@ describe("Module:", function () {
             [ { filename: '/path/to/file.js'},  '../lib(16)/main.js',      '/path/lib(16)/main.js'],
             [ { filename: '/path/to/file.js'},  '../lib(16)/package.json', '/path/lib(16)/package.json'],
             [ { filename: '/path/to/file.js'},  '../lib(16)',              '/path/lib(16)/main.js'],
-            [ { filename: '/path/to/file.js'},  '../lib(16)/',             '/path/lib(16)/main.js']
+            [ { filename: '/path/to/file.js'},  '../lib(16)/',             '/path/lib(16)/main.js'],
+
+            [ { filename: '/path/to/file.js'},      '/common/../common/lib(4)',     '/common/lib(4)'],
+            [ { filename: 'node_core/assert.js'},   '/./package.json(11)',          '/package.json(11)']
         ];
 
         it("should return PATH_DATA[i]", function () {
