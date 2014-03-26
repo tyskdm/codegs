@@ -21,7 +21,7 @@ describe("codegs:", function () {
     var MockFs = require('../mock/mockfs.js');
 
     beforeEach(function () {
-        ;
+        // ;
     });
 
     describe("'codegs' itself:", function () {
